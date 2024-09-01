@@ -1,10 +1,15 @@
-KEYWORD = "if", "else", "while"
-IDENTIFIER = '+', '-', '*', '/', '=','>','<'
-PUNCUATOR = ';', '(', ')', '{', '}'
+from enum import Enum
 
-class Token_Type:
-    Keyword = KEYWORD
-    Identifier = IDENTIFIER
-    Punctuator = PUNCUATOR
+class TokenType(Enum):
+    NUMBER = 'NUMBER'
+    IDENTIFIER = 'IDENTIFIER'
+    KEYWORD = 'KEYWORD'
+    OPERATOR = 'OPERATOR'
+    PUNCTUATION = 'PUNCTUATION'
+    UNKNOWN = 'UNKNOWN'
+
+
+    
+    
 
     
