@@ -18,17 +18,17 @@ class Token:
     
 
 # Keywords 
-def check_keyword(s_string: str) -> bool:
+def check_keyword(s_string: str):
     return s_string in KEYWORDS
 # Operators
-def check_operator(o_ch: str) -> bool:
+def check_operator(o_ch: str):
     return o_ch in OPERATORS
 # Punctuation
-def check_punctuation(p_ch: str) -> bool:
+def check_punctuation(p_ch: str):
     return p_ch in PUNCTUATION
 
 
-def lexer(input: str) -> List[Token]:
+def lexer(input: str):
     tokens = []
     current_token = []
 
