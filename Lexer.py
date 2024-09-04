@@ -21,10 +21,10 @@ class Token:
 def check_keyword(s_string: str):
     return s_string in KEYWORDS
 # Operators
-def check_operator(o_ch: str):
+def check_operator(o_ch: chr):
     return o_ch in OPERATORS
 # Punctuation
-def check_punctuation(p_ch: str):
+def check_punctuation(p_ch: chr):
     return p_ch in PUNCTUATION
 
 
@@ -43,7 +43,7 @@ def lexer(input: str):
 
     # check if its numbers
         if '0' <= current_char <= '9':
-            current_token.clear()  # Reset token
+            current_token.clear()  
             while i < len(input) and '0' <= input[i] <= '9':
                 current_token.append(input[i])
                 i += 1
