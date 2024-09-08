@@ -1,6 +1,6 @@
 ### Compiler Construction Project
-## Tokenize .C file 
-## sUPPORTED TOKENS
+#### Tokenize .C file 
+#### sUPPORTED TOKENS
     NUMBER 
     KEYWORD
     IDENTIFIER 
