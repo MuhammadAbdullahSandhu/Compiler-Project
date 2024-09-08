@@ -1,5 +1,3 @@
-from typing import List
-from enum import Enum
 from Token import TokenType
 
 KEYWORDS = {"if", "else", "while", "for", "return"}  
@@ -11,12 +9,9 @@ class Token:
         self.t_type = type
         self.t_vale = value
 
-    def __str__(self) -> str:
-
+    def __str__(self):
             return f"Token   <type={self.t_type}, value'{self.t_vale}'>"
     
-    
-
 # Keywords 
 def check_keyword(s_string: str):
     return s_string in KEYWORDS
@@ -26,7 +21,6 @@ def check_operator(o_ch: chr):
 # Punctuation
 def check_punctuation(p_ch: chr):
     return p_ch in PUNCTUATION
-
 
 def lexer(input: str):
     tokens = []
