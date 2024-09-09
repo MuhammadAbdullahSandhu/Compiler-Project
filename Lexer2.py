@@ -5,7 +5,7 @@ from Token import TokenType
 KEYWORDS = {"int", "float", "return", "if", "else", "for", "while", "do", "break",
              "continue", "void", "char", "double", "switch", "case", "default",
              "struct", "typedef", "enum", "union", "const", "volatile"}
-OPERATORS = [{'+', '-', '*', '/', '=', '>', '<', '!', '%'}]
+OPERATORS = {'+', '-', '*', '/', '=', '>', '<', '!', '%'}
 MULTI_CHAR_OPERATORS = {"==", "!=", "<=", ">=", "&&", "||"}
 PUNCTUATION = {'.', ',', ';', '(', ')', '{', '}','[',']',':'}
 
@@ -60,7 +60,6 @@ def Lexer(input_string):
         # Handle numbers
         if current_char.isdigit():
             start = i
-            pos = input_string[i]
             while i < length and input_string[i].isdigit():
                 i += 1
             tokens.append(Token.Token(TokenType.NUMBER, input_string[start:i]))

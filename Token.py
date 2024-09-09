@@ -17,7 +17,7 @@ class Token:
         self.t_vale = value
 
     def __str__(self):
-          return f"Token{{type={self.t_type:<20},value='{self.t_vale}'}}"
+          return f"Token{{type={self.t_type:<20} value='{self.t_vale}'}}"
     
     
     
