@@ -6,7 +6,7 @@ KEYWORDS = {"int", "float", "return", "if", "else", "for", "while", "do", "break
              "continue", "void", "char", "double", "switch", "case", "default",
              "struct", "typedef", "enum", "union", "const", "volatile"}
 OPERATORS = {'+', '-', '*', '/', '=', '>', '<', '!', '%'}
-MULTI_CHAR_OPERATORS = {"==", "!=", "<=", ">=", "&&", "||"}
+MULTI_CHAR_OPERATORS = {"==","!=","<=",">=","--","&&","<<",">>","*=","%=","+=","-=","&="}
 PUNCTUATION = {'.', ',', ';', '(', ')', '{', '}','[',']',':'}
 
 #Check if a string is a keyword
@@ -60,7 +60,10 @@ def Lexer(input_string):
         # Handle numbers
         if current_char.isdigit():
             start = i
-            while i < length and input_string[i].isdigit():
+            is_decimal = False
+            while i < length and (input_string[i].isdigit() or (input_string[i] == '.' and not is_decimal)):
+                if input_string[i] == '.':
+                    is_decimal = True  
                 i += 1
             tokens.append(Token.Token(TokenType.NUMBER, input_string[start:i]))
             continue
@@ -100,12 +103,21 @@ def Lexer(input_string):
             start = i
             i += 1
             while i < length and input_string[i] != '\n':
-                if input_string[i] == '\\':  # Handle continuation on the next line
-                    i += 1  # Skip the backslash
+                if input_string[i] == '\\':  
+                    i += 1  
                     continue
                 i += 1
             tokens.append(Token.Token(TokenType.PREPROCESSOR, input_string[start:i]))
             i += 1  # Skip the newline
+            continue
+
+        if current_char == '"':
+            start = i
+            i += 1
+            while i < length and (input_string[i] != '"' or input_string[i - 1] == '\\'):
+                i += 1
+            i += 1  # Skip the closing quote
+            tokens.append(Token.Token(TokenType.STRING_LITERAL, input_string[start:i]))
             continue
 
         # Handle unknown characters
