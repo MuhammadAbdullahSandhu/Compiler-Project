@@ -9,33 +9,38 @@ OPERATORS = {'+', '-', '*', '/', '=', '>', '<', '!', '%'}
 MULTI_CHAR_OPERATORS = {"==","!=","<=",">=","--","&&","<<",">>","*=","%=","+=","-=","&="}
 PUNCTUATION = {'.', ',', ';', '(', ')', '{', '}','[',']',':'}
 
-#Check if a string is a keyword
+# Check if a string is a keyword
 def is_Keyword(keyword):
     return keyword in KEYWORDS
 
-#Check if a character is a single-character operator
+# Check if a character is a single-character operator
 def is_Operator(operator):
     return operator in OPERATORS
 
-#Check if a string is a multi-character operator
+# Check if a string is a multi-character operator
 def is_Multi_C_operator(multi_operator):
     return multi_operator in MULTI_CHAR_OPERATORS
 
-#Check if a character is a punctuation mark
+# Check if a character is a punctuation mark
 def is_Punctuation(punctuation):
     return punctuation in PUNCTUATION
 
-# Lexical Anaylsis
+# Lexical Analysis with Line Numbers and Error Handling for invalid tokens
 def Lexer(input_string):
     tokens = []
     length = len(input_string)
     i = 0 
+    line_number = 1  # Track the current line number
     
     while i < length:
         current_char = input_string[i]
         
-        # Skip whitespace
-        if current_char in ' \t\n\r':
+        # Skip whitespace and track newlines
+        if current_char in ' \t':
+            i += 1
+            continue
+        if current_char == '\n':
+            line_number += 1
             i += 1
             continue
 
@@ -44,7 +49,7 @@ def Lexer(input_string):
             start = i
             while i < length and input_string[i] != '\n':
                 i += 1
-            tokens.append(Token.Token(TokenType.COMMENT, input_string[start:i]))
+            tokens.append(Token.Token(TokenType.COMMENT, input_string[start:i], line_number))
             continue
 
         # Handle multi-line comments
@@ -52,20 +57,25 @@ def Lexer(input_string):
             start = i
             i += 2
             while i + 1 < length and not (input_string[i] == '*' and input_string[i + 1] == '/'):
+                if input_string[i] == '\n':
+                    line_number += 1
                 i += 1
             i += 2  # Skip closing */
-            tokens.append(Token.Token(TokenType.COMMENT, input_string[start:i]))
+            tokens.append(Token.Token(TokenType.COMMENT, input_string[start:i], line_number))
             continue
 
         # Handle numbers
         if current_char.isdigit():
             start = i
-            is_decimal = False
-            while i < length and (input_string[i].isdigit() or (input_string[i] == '.' and not is_decimal)):
-                if input_string[i] == '.':
-                    is_decimal = True  
+            while i < length and input_string[i].isdigit():
                 i += 1
-            tokens.append(Token.Token(TokenType.NUMBER, input_string[start:i]))
+            # Check if the number is followed by an invalid identifier start (like `4a`)
+            if i < length and input_string[i].isalpha():
+                print(f"Error: Invalid token '{input_string[start:i + 1]}' at line {line_number}")
+                tokens.append(Token.Token(TokenType.UNKNOWN, input_string[start:i + 1], line_number))
+                i += 1  # Skip the invalid character
+            else:
+                tokens.append(Token.Token(TokenType.NUMBER, input_string[start:i], line_number))
             continue
 
         # Handle identifiers and keywords
@@ -75,26 +85,26 @@ def Lexer(input_string):
                 i += 1
             token_value = input_string[start:i]
             if is_Keyword(token_value):
-                tokens.append(Token.Token(TokenType.KEYWORD, token_value))
+                tokens.append(Token.Token(TokenType.KEYWORD, token_value, line_number))
             else:
-                tokens.append(Token.Token(TokenType.IDENTIFIER, token_value))
+                tokens.append(Token.Token(TokenType.IDENTIFIER, token_value, line_number))
             continue
         
         # Handle multi-character operators
         if i + 1 < length and is_Multi_C_operator(input_string[i:i + 2]):
-            tokens.append(Token.Token(TokenType.OPERATOR, input_string[i:i + 2]))
+            tokens.append(Token.Token(TokenType.OPERATOR, input_string[i:i + 2], line_number))
             i += 2
             continue
 
         # Handle single-character operators
         if is_Operator(current_char):
-            tokens.append(Token.Token(TokenType.OPERATOR, current_char))
+            tokens.append(Token.Token(TokenType.OPERATOR, current_char, line_number))
             i += 1
             continue
         
         # Handle punctuation
         if is_Punctuation(current_char):
-            tokens.append(Token.Token(TokenType.PUNCTUATION, current_char))
+            tokens.append(Token.Token(TokenType.PUNCTUATION, current_char, line_number))
             i += 1
             continue
         
@@ -104,26 +114,29 @@ def Lexer(input_string):
             i += 1
             while i < length and input_string[i] != '\n':
                 if input_string[i] == '\\':  
-                    i += 1  
+                    i += 1  # Skip continuation lines
                     continue
                 i += 1
-            tokens.append(Token.Token(TokenType.PREPROCESSOR, input_string[start:i]))
-            # Skip the newline
-            i += 1  
+            tokens.append(Token.Token(TokenType.PREPROCESSOR, input_string[start:i], line_number))
+            line_number += 1
+            i += 1  # Skip the newline
             continue
 
+        # Handle string literals
         if current_char == '"':
             start = i
             i += 1
             while i < length and (input_string[i] != '"' or input_string[i - 1] == '\\'):
+                if input_string[i] == '\n':
+                    line_number += 1
                 i += 1
-            # Skip the closing quote
-            i += 1  
-            tokens.append(Token.Token(TokenType.STRING_LITERAL, input_string[start:i]))
+            i += 1  # Skip the closing quote
+            tokens.append(Token.Token(TokenType.STRING_LITERAL, input_string[start:i], line_number))
             continue
 
-        # Handle unknown characters
-        tokens.append(Token.Token(TokenType.UNKNOWN, current_char))
+        # Handle unknown characters (Invalid token)
+        print(f"Error: Invalid token '{current_char}' at line {line_number}")
+        tokens.append(Token.Token(TokenType.UNKNOWN, current_char, line_number))
         i += 1
 
     return tokens
