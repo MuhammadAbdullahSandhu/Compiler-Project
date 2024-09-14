@@ -1,12 +1,13 @@
 import Token
 from Token import TokenType
+from errors import Errors
 
 # Define Grammar
 KEYWORDS = {"int", "float", "return", "if", "else", "for", "while", "do", "break",
              "continue", "void", "char", "double", "switch", "case", "default",
              "struct", "typedef", "enum", "union", "const", "volatile"}
 OPERATORS = {'+', '-', '*', '/', '=', '>', '<', '!', '%'}
-MULTI_CHAR_OPERATORS = {"==","!=","<=",">=","--","&&","<<",">>","*=","%=","+=","-=","&="}
+MULTI_CHAR_OPERATORS = {"==", "!=", "<=", ">=", "--", "++", "&&", "<<", ">>", "*=", "%=", "+=", "-=", "&="}
 PUNCTUATION = {'.', ',', ';', '(', ')', '{', '}','[',']',':'}
 
 # Check if a string is a keyword
@@ -90,6 +91,12 @@ def Lexer(input_string):
                 tokens.append(Token.Token(TokenType.IDENTIFIER, token_value, line_number))
             continue
         
+        #  Handle multi-character operators including '++'
+        if i + 1 < length and is_Multi_C_operator(input_string[i:i + 2]):
+            tokens.append(Token.Token(TokenType.OPERATOR, input_string[i:i + 2], line_number))
+            i += 2
+            continue
+
         # Handle multi-character operators
         if i + 1 < length and is_Multi_C_operator(input_string[i:i + 2]):
             tokens.append(Token.Token(TokenType.OPERATOR, input_string[i:i + 2], line_number))
@@ -135,7 +142,7 @@ def Lexer(input_string):
             continue
 
         # Handle unknown characters (Invalid token)
-        print(f"Error: Invalid token '{current_char}' at line {line_number}")
+        Errors.invalid_toke(current_char,line_number)
         tokens.append(Token.Token(TokenType.UNKNOWN, current_char, line_number))
         i += 1
 

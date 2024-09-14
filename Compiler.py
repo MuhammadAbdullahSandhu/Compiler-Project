@@ -1,5 +1,7 @@
 from Lexer import Lexer
 import argparse
+import MyParser 
+from errors import Errors
 
 ## Build a Lexer from start https://www.youtube.com/watch?v=nexKgX2d7wU
 ## https://medium.com/@enzojade62/step-by-step-building-a-lexer-in-java-for-tokenizing-source-code-ac4f1d91326f
@@ -31,9 +33,16 @@ def code_file(file, token_list):
             print("-" * 40)
             # Create tokens using a Lexer class
             tokens = Lexer(source_code)
+            myparser = MyParser.Parser(tokens)
+            try:
+                myparser.parse()
+                Errors.successful
+            except SyntaxError as e:
+                print(f"Syntax error: {e}")
             if token_list:
                 for token in tokens:
                     print(token)
+                    
             else:
                 print('Next function...')
     # Handle file if not found 

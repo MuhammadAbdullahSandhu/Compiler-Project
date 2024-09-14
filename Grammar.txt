@@ -1,0 +1,2 @@
+E represents an expression.
+T represents a term.
