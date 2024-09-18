@@ -17,14 +17,17 @@ def main():
     # Flag -L to print the entire list of tokens at once
     parser.add_argument('-L', '--list', action='store_true', help='print the entire list of tokens')
 
+    # Flag -A to parse the code using the parser
+    parser.add_argument('-A', '--parsing', action='store_true', help='parse the code using the parser')
+
     # Parse command-line arguments
     args = parser.parse_args()
 
     #pass arguments to function
-    code_file(args.file, token_list=args.list)
+    code_file(args.file, token_list=args.list, parse_token=args.parsing)
 
 # Function to read .c file and show tokens along with code
-def code_file(file, token_list):
+def code_file(file, token_list,parse_token):
     # File opening
     try:
         with open(file, 'r') as text_file:
@@ -34,15 +37,15 @@ def code_file(file, token_list):
             # Create tokens using a Lexer class
             tokens = Lexer(source_code)
             myparser = MyParser.Parser(tokens)
-            try:
-                myparser.parse()
-                Errors.successful
-            except SyntaxError as e:
-                print(f"Syntax error: {e}")
             if token_list:
                 for token in tokens:
                     print(token)
-                    
+            if parse_token:
+                try:
+                    myparser.parse()
+                    print("Parsing completed successfully.")
+                except SyntaxError as e:
+                    print(f"Syntax error: {e}")   
             else:
                 print('Next function...')
     # Handle file if not found 

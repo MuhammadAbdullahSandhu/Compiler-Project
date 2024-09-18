@@ -1,2 +1,5 @@
-E represents an expression.
-T represents a term.
+Expression → Term Expression'
+Expression' → + Term Expression' | - Term Expression' | Em
+Term → Factor Term'
+Term' → * Factor Term' | / Factor Term' | Em
+Factor → NUMBER | ( Expression )
