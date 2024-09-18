@@ -27,7 +27,7 @@ def main():
     code_file(args.file, token_list=args.list, parse_token=args.parsing)
 
 # Function to read .c file and show tokens along with code
-def code_file(file, token_list,parse_token):
+def code_file(file, token_list, parse_token):
     # File opening
     try:
         with open(file, 'r') as text_file:
