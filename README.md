@@ -1,4 +1,4 @@
-### Compiler Construction Project
+# Compiler Construction Project
 #### Tokenize .C file 
 #### SUPPORTED TOKENS
     NUMBER 
