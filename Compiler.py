@@ -37,10 +37,11 @@ def code_file(file, token_list, parse_token):
             # Create tokens using a Lexer class
             tokens = Lexer(source_code)
             myparser = MyParser.Parser(tokens)
+            
             if token_list:
                 for token in tokens:
                     print(token)
-            if parse_token:
+            elif parse_token:
                 try:
                     myparser.parse()
                     print("Parsing completed successfully.")

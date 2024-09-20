@@ -1,4 +1,6 @@
 from Token import TokenType
+import Lexer
+from AST import FunctionNode, BlockNode, VariableDeclarationNode, ReturnNode, AssignmentNode, NumberNode, IdentifierNode
 
 class Parser:
     def __init__(self, tokens):
@@ -15,88 +17,112 @@ class Parser:
         if token and token.t_type == token_type and (value is None or token.t_vale == value):
             print(f"Consuming token: {token}")
             self.current_token_pos += 1
+            return token
         else:
             expected = token_type if value is None else f"{token_type} with value '{value}'"
             raise SyntaxError(f"Unexpected token: {token}. Expected {expected}.")
 
-    
-    def parse_Expression(self):
-        print("Parsing E -> T E'")
-        self.parse_Term()
-        self.parse_Expression_E()
-
-    # Expression -> + Term followed by Expression | E
-    def parse_Expression_E(self):
-        token = self.current_token()
-        
-        # only for + and - 
-        if token and token.t_type == TokenType.OPERATOR and token.t_vale in ('+', '-'):
-            if token.t_vale == '+':
-                print("Parsing E' -> + T E'")
-                self.consume_token(TokenType.OPERATOR, '+')
-            elif token.t_vale == '-':
-                print("Parsing E' -> - T E'")
-                self.consume_token(TokenType.OPERATOR, '-')
-            
-            # Parse the next term after the operator
-            self.parse_Term()
-            
-            # look for more '+' or '-' operators
-            self.parse_Expression_E()
-        else:
-            # No more '+' or '-' operators
-            print("Parsing E' -> done")
-
-
-    # Grammar: T -> F T'
-    def parse_Term(self):
-        print("Parsing T -> F T'")
-        self.parse_Factor()
-        self.parse_Term_T()
-
-    # Grammar: T' -> * F T' | Em
-    def parse_Term_T(self):
-        token = self.current_token()
-
-        # Check if the token is an operator and is either '*' or '/'
-        if token and token.t_type == TokenType.OPERATOR and token.t_vale in ('*', '/'):
-            if token.t_vale == '*':
-                print("Parsing T' -> * F T'")
-                self.consume_token(TokenType.OPERATOR, '*')
-            elif token.t_vale == '/':
-                print("Parsing T' -> / F T'")
-                self.consume_token(TokenType.OPERATOR, '/')
-            
-            # Parse the next factor after the operator
-            self.parse_Factor()
-
-            # look for more '*' or '/' operators
-            self.parse_Term_T()
-        else:
-            # No more '*' or '/' operators
-            print("Parsing T' -> done")
-
-
-    # Grammar: F -> ( E ) | id | number
-    def parse_Factor(self):
-        token = self.current_token()
-        if token.t_type == TokenType.PUNCTUATION and token.t_vale == '(':
-            print("Parsing F -> ( E )")
-            self.consume_token(TokenType.PUNCTUATION, '(')
-            self.parse_Expression()
-            self.consume_token(TokenType.PUNCTUATION, ')')
-        elif token.t_type == TokenType.IDENTIFIER:
-            print("Parsing F -> ID")
-            self.consume_token(TokenType.IDENTIFIER)
-        elif token.t_type == TokenType.NUMBER:
-            print("Parsing F -> Number")
-            self.consume_token(TokenType.NUMBER)
-        else:
-            raise SyntaxError(f"Unexpected token in Factor: {token}")
-
     def parse(self):
-        self.parse_Expression()
-        # check for remaining tokens
-        if self.current_token() is not None:
-            raise SyntaxError(f"Unexpected token {self.current_token()}")
+        functions = []
+        print("Parsing program")
+        while self.current_token() is not None:
+            functions.append(self.parse_function())
+        # Test printing AST
+        print("AST:", functions)  
+        return functions
 
+    def parse_function(self):
+        print("Parsing function :- statement")
+        token = self.current_token()
+        fun_name = self.current_token()
+
+        # For 'int'
+        return_type = self.consume_token(TokenType.KEYWORD ) 
+        # For 'main' 
+        func_name = self.consume_token(TokenType.IDENTIFIER)  
+        # For '('
+        self.consume_token(TokenType.PUNCTUATION)  
+        # For ')'
+        self.consume_token(TokenType.PUNCTUATION) 
+        # For '{' 
+        self.consume_token(TokenType.PUNCTUATION)  
+         # Parse the function block
+        body = self.parse_block() 
+        # For '}'
+        self.consume_token(TokenType.PUNCTUATION)  
+            
+        print(f"Function name: {fun_name.t_vale}")
+        print(f"Function name: {return_type.t_vale}")
+        return FunctionNode(return_type.t_vale, func_name.t_vale, body)
+        
+        
+
+    def parse_block(self):
+        statements = []
+        print("Parsing block :- statements")
+        while self.current_token() is not None and self.current_token().t_vale != '}':
+            if self.current_token().t_type == TokenType.KEYWORD and self.current_token().t_vale == 'int':
+                # parsing variable declaration
+                statements.append(self.parse_declaration())  
+            else:
+                 # Parsing statement
+                statements.append(self.parse_statement()) 
+        return BlockNode(statements)
+
+    def parse_declaration(self):
+        print("Parsing variable declaration")
+        # parsing keywords like 'int' 'void'
+        var_type = self.consume_token(TokenType.KEYWORD)  
+        # parsing variable name
+        vari_name = self.consume_token(TokenType.IDENTIFIER)  
+        init_value = None
+        var_name = self.current_token().t_vale
+        
+        # chech = expression
+        if self.current_token() and self.current_token().t_type == TokenType.OPERATOR and self.current_token().t_vale == '=':
+            # Parse '='
+            self.consume_token(TokenType.OPERATOR, '=')  
+            # Parse the expression after '='
+            init_value = self.parse_expression()  
+        # parsing ';'
+        self.consume_token(TokenType.PUNCTUATION, ';')  
+        
+        print(f"Declared variable: {var_name}")
+        return VariableDeclarationNode(var_type.t_vale, vari_name.t_vale, init_value)
+        
+
+    def parse_statement(self):
+        print("Parsing statement :- expression or return statement")
+        token = self.current_token()
+
+        if token and token.t_type == TokenType.KEYWORD and token.t_vale == 'return':
+             # parsing 'return'
+            self.consume_token(TokenType.KEYWORD, 'return') 
+            # parsing expression after return
+            value = self.parse_expression()  
+            # parsing ';'
+            self.consume_token(TokenType.PUNCTUATION, ';')  
+            return ReturnNode(value)
+
+        elif token and self.current_token().t_type == TokenType.IDENTIFIER:
+            var_name = self.consume_token(TokenType.IDENTIFIER)  
+            # parsing variable name
+            self.consume_token(TokenType.OPERATOR, '=')  
+            # parsing the expression after '='
+            value = self.parse_expression()  
+            self.consume_token(TokenType.PUNCTUATION, ';')  
+            return AssignmentNode(var_name.t_vale, value)
+
+    def parse_expression(self):
+        token = self.current_token()
+        # parsing number
+        if token.t_type == TokenType.NUMBER:
+            self.consume_token(TokenType.NUMBER)  
+            return NumberNode(token.t_vale)
+        # parsing identifier
+        elif token.t_type == TokenType.IDENTIFIER:
+            self.consume_token(TokenType.IDENTIFIER)  
+            return IdentifierNode(token.t_vale)
+
+        else:
+            raise SyntaxError(f"Unexpected token in expression: {token}")

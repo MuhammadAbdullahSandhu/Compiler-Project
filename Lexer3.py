@@ -4,19 +4,20 @@ from errors import Errors
 
 # Define token rules without preprocessors initially
 token_rules = [
-    ('KEYWORD', r'\b(?:auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|inline|int|long|register|restrict|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while|_Alignas|_Alignof|_Atomic|_Bool|_Complex|_Generic|_Imaginary|_Noreturn|_Static_assert|_Thread_local)\b'),
-    ('MULTI_CHAR_OPERATOR', r'(==|!=|<=|>=|\+\+|--|&&|\|\||<<|>>|->|/=|\*=|%=|\+=|-=|&=|\|=|\^=|<<=|>>=)'), 
-    ('IDENTIFIER', r'\b[A-Za-z_]\w*\b'),
-    ('OPERATOR', r'[+\-*/%=!<>&|^~]'),  
-    ('FLOAT', r'\b\d+\.\d+([eE][+-]?\d+)?|\.\d+([eE][+-]?\d+)?|\d+\.[eE][+-]?\d+\b'),
-    ('NUMBER', r'\b0[xX][0-9a-fA-F]+|0[0-7]*|[1-9][0-9]*\b'),  
-    ('INVALID_NUMBER', r'\b0[bB][^01]+|0[bB]$|0[xX][^0-9a-fA-F]+|0[xX]$|\b\d+[A-Za-z]+\b'),  
-    ('PUNCTUATION', r'[.,;(){}[\]:]'),
-    ('STRING', r'"(?:\\.|[^"\\])*"'),
-    ('CHAR', r"'(?:\\.|[^'\\])'"),
-    ('COMMENT_SINGLE', r'//.*$'),
-    ('COMMENT_MULTI', r'/\*[^*]*\*+(?:[^/*][^*]*\*+)*/'),
-    ('INVALID', r'[^\s]+'), 
+    ('COMMENT_SINGLE', r'//.*$'),  # Single-line comment
+    ('COMMENT_MULTI', r'/\*[^*]*\*+(?:[^/*][^*]*\*+)*/'),  # Multi-line comment
+    ('STRING', r'"(?:\\.|[^"\\])*"'),  # String literal
+    ('CHAR', r"'(?:\\.|[^'\\])'"),  # Character literal
+    ('KEYWORD', r'\b(?:auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|inline|int|long|register|restrict|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while|_Alignas|_Alignof|_Atomic|_Bool|_Complex|_Generic|_Imaginary|_Noreturn|_Static_assert|_Thread_local)\b'),  # Keywords
+    ('MULTI_CHAR_OPERATOR', r'(==|!=|<=|>=|\+\+|--|&&|\|\||<<|>>|->|/=|\*=|%=|\+=|-=|&=|\|=|\^=|<<=|>>=)'),  # Multi-character operators
+    ('IDENTIFIER', r'\b[A-Za-z_]\w*\b'),  # Identifiers
+    ('FLOAT', r'\b\d+\.\d+([eE][+-]?\d+)?|\.\d+([eE][+-]?\d+)?|\d+\.[eE][+-]?\d+\b'),  # Floating point numbers
+    ('NUMBER', r'\b0[xX][0-9a-fA-F]+|0[0-7]*|[1-9][0-9]*\b'),  # Numbers (hex, octal, decimal)
+    ('OPERATOR', r'[+\-*/%=!<>&|^~]'),  # Single-character operators
+    ('PUNCTUATION', r'[.,;(){}[\]:]'),  # Punctuation
+    ('WHITESPACE', r'\s+'),  # Ignore spaces and tabs
+    ('INVALID_NUMBER', r'\b0[bB][^01]+|0[bB]$|0[xX][^0-9a-fA-F]+|0[xX]$|\b\d+[A-Za-z]+\b'),  # Invalid numbers (e.g., 0b2, 123abc)
+    ('INVALID', r'[^\s]+'),  # Invalid token (catch-all)
 ]
 
 # Combine the token rules to a regex pattern
@@ -42,7 +43,7 @@ class Lexer:
     # Tokenize regular code (excluding preprocessors)
     def tokenize(self):
         tokens = []
-        ignored_tokens = {'WHITESPACE', 'NEWLINE', 'COMMENT', 'COMMENT_SINGLE', 'COMMENT_MULTI'}
+        ignored_tokens = {'WHITESPACE', 'NEWLINE', 'COMMENT_SINGLE', 'COMMENT_MULTI'}
         
         # Remove preprocessors
         regular_tokens = re.sub(self.preprocessor_regex, '', self.code)
@@ -57,7 +58,6 @@ class Lexer:
             token_start = match.start()
             
             # Update line number if necessary
-            # Find how many newlines are between line_start and the current token's start
             line_increment = regular_tokens.count('\n', line_start, token_start)
             current_line += line_increment
             
@@ -65,10 +65,14 @@ class Lexer:
             line_start = token_start
             
             if token_type in ignored_tokens:
+                # Handle newlines for multi-line comments
+                if token_type == 'COMMENT_MULTI':
+                    current_line += token_value.count('\n')
                 continue
+            
             # Handle invalid tokens
             if token_type == 'INVALID_NUMBER':
-                Errors.invalid_toke(token_value, current_line)
+                Errors.invalid_token(token_value, current_line)
                 tokens.append(Token.Token('INVALID', token_value, current_line))
                 continue
             
@@ -76,7 +80,7 @@ class Lexer:
             tokens.append(Token.Token(token_type, token_value, current_line))
         
         return tokens
-
+    
     # Tokenize preprocessors after normal code tokenization
     def tokenize_preprocessors(self):
         preprocessors = []

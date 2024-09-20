@@ -1,5 +1,20 @@
+in future grammar will keep expanding 
+
+Version 1 for testing only 
+version 1:
 Expression → Term Expression'
 Expression' → + Term Expression' | - Term Expression' | Em
 Term → Factor Term'
 Term' → * Factor Term' | / Factor Term' | Em
 Factor → NUMBER | ( Expression )
+
+version 2:
+program       :- function
+function      :- return_type function_name() { block }
+block         :- { statement* }
+statement     :- variable_declaration | return_statement | assignment_statement
+variable_declaration :- type identifier ; | type identifier = expression ;
+return_statement    :- return expression ;
+assignment_statement :- identifier = expression ;
+expression    :- NUMBER | IDENTIFIER
+
