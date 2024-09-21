@@ -8,7 +8,11 @@ class FunctionNode(ASTNode):
         self.body = body
 
     def __repr__(self):
-        return f"FunctionNode{{returnType='{self.return_type}', name='{self.name}', body={self.body}}}"
+        return "FunctionDeclaration{\n" + \
+           " \t   returnType='" + self.return_type + "',\n" + \
+           "  \t \t  name='" + self.name + "',\n" + \
+           "  \t \t  body=" + str(self.body) + "\n" + \
+           "}"
 
 
 class BlockNode(ASTNode):

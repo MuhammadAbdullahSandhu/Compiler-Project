@@ -19,9 +19,6 @@ class Token:
 
     def __str__(self):
           return f"Token{{type = {self.t_type:<20} value = {self.t_vale:<10} line = {self.line_number}}}"
-    
-    
-    
-    
+
 
     

@@ -5,7 +5,7 @@ from errors import Errors
 # Define Grammar
 KEYWORDS = {"int", "float", "return", "if", "else", "for", "while", "do", "break",
              "continue", "void", "char", "double", "switch", "case", "default",
-             "struct", "typedef", "enum", "union", "const", "volatile"}
+             "struct", "typedef", "enum", "union", "const", "volatile","long"}
 OPERATORS = {'+', '-', '*', '/', '=', '>', '<', '!', '%'}
 MULTI_CHAR_OPERATORS = {"==", "!=", "<=", ">=", "--", "++", "&&", "<<", ">>", "*=", "%=", "+=", "-=", "&="}
 PUNCTUATION = {'.', ',', ';', '(', ')', '{', '}','[',']',':'}
@@ -68,7 +68,10 @@ def Lexer(input_string):
         # Handle numbers
         if current_char.isdigit():
             start = i
-            while i < length and input_string[i].isdigit():
+            is_decimal = False
+            while i < length and (input_string[i].isdigit() or (input_string[i] == '.' and not is_decimal)):
+                if input_string[i] == '.':
+                    is_decimal = True  
                 i += 1
             # Check if the number is followed by an invalid identifier start (like `4a`)
             if i < length and input_string[i].isalpha():
@@ -142,7 +145,7 @@ def Lexer(input_string):
             continue
 
         # Handle unknown characters (Invalid token)
-        Errors.invalid_toke(current_char,line_number)
+        Errors.invalid_token(current_char,line_number)
         tokens.append(Token.Token(TokenType.UNKNOWN, current_char, line_number))
         i += 1
 

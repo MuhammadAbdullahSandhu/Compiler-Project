@@ -1,9 +1,10 @@
-int main()
+long mains()
     {
-    int a = 2;
-    int b = 5;
+    int a ;
+    int b = 5.0;
     int c = 4;
     return a;
 }
+
 
  

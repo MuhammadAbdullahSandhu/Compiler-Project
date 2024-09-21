@@ -11,8 +11,10 @@ token_rules = [
     ('KEYWORD', r'\b(?:auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|inline|int|long|register|restrict|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while|_Alignas|_Alignof|_Atomic|_Bool|_Complex|_Generic|_Imaginary|_Noreturn|_Static_assert|_Thread_local)\b'),  # Keywords
     ('MULTI_CHAR_OPERATOR', r'(==|!=|<=|>=|\+\+|--|&&|\|\||<<|>>|->|/=|\*=|%=|\+=|-=|&=|\|=|\^=|<<=|>>=)'),  # Multi-character operators
     ('IDENTIFIER', r'\b[A-Za-z_]\w*\b'),  # Identifiers
-    ('FLOAT', r'\b\d+\.\d+([eE][+-]?\d+)?|\.\d+([eE][+-]?\d+)?|\d+\.[eE][+-]?\d+\b'),  # Floating point numbers
-    ('NUMBER', r'\b0[xX][0-9a-fA-F]+|0[0-7]*|[1-9][0-9]*\b'),  # Numbers (hex, octal, decimal)
+    ('NUMBER',  r'\b[0-9]*\.[0-9]+|' + \
+               r'0[0-7]*|' + \
+               r'\b[1-9][0-9]*\b|' + \
+               r'\b0\b' ),  # Numbers (hex, octal, decimal)
     ('OPERATOR', r'[+\-*/%=!<>&|^~]'),  # Single-character operators
     ('PUNCTUATION', r'[.,;(){}[\]:]'),  # Punctuation
     ('WHITESPACE', r'\s+'),  # Ignore spaces and tabs

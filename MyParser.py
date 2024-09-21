@@ -1,6 +1,8 @@
 from Token import TokenType
 import Lexer
 from AST import FunctionNode, BlockNode, VariableDeclarationNode, ReturnNode, AssignmentNode, NumberNode, IdentifierNode
+from MyGrammar import TokenKind
+
 
 class Parser:
     def __init__(self, tokens):
@@ -35,18 +37,21 @@ class Parser:
         print("Parsing function :- statement")
         token = self.current_token()
         fun_name = self.current_token()
-
+        
         # For 'int'
-        return_type = self.consume_token(TokenType.KEYWORD ) 
-        # For 'main' 
+        return_type = self.consume_token(TokenType.KEYWORD) 
+        # For 'main'
         func_name = self.consume_token(TokenType.IDENTIFIER)  
         # For '('
-        self.consume_token(TokenType.PUNCTUATION)  
+        
+        self.consume_token(TokenType.PUNCTUATION, '(')  
         # For ')'
-        self.consume_token(TokenType.PUNCTUATION) 
-        # For '{' 
+        
+        self.consume_token(TokenType.PUNCTUATION,')') 
+        # For '{'
+         
         self.consume_token(TokenType.PUNCTUATION)  
-         # Parse the function block
+        # Parse the function block
         body = self.parse_block() 
         # For '}'
         self.consume_token(TokenType.PUNCTUATION)  
@@ -104,7 +109,7 @@ class Parser:
             self.consume_token(TokenType.PUNCTUATION, ';')  
             return ReturnNode(value)
 
-        elif token and self.current_token().t_type == TokenType.IDENTIFIER:
+        elif token and token.t_type == TokenType.IDENTIFIER:
             var_name = self.consume_token(TokenType.IDENTIFIER)  
             # parsing variable name
             self.consume_token(TokenType.OPERATOR, '=')  
