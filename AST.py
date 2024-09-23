@@ -1,19 +1,24 @@
 class ASTNode:
-    pass
+    def __repr__(self):
+        return self.__class__.__name__
+    
+class ProgramNode(ASTNode):
+    def __init__(self, functions):
+        self.functions = functions
+    def __repr__(self):
+        return f"{self.__class__.__name__}(functions={self.functions})"
+
 
 class FunctionNode(ASTNode):
-    def __init__(self, return_type, name, body):
-        self.return_type = return_type
+    def __init__(self, name, body):
         self.name = name
         self.body = body
 
     def __repr__(self):
         return "FunctionDeclaration{\n" + \
-           " \t   returnType='" + self.return_type + "',\n" + \
-           "  \t \t  name='" + self.name + "',\n" + \
-           "  \t \t  body=" + str(self.body) + "\n" + \
+           "  \t  name='" + self.name + "',\n" + \
+           "  \t  body=" + str(self.body) + "\n" + \
            "}"
-
 
 class BlockNode(ASTNode):
     def __init__(self, statements):
@@ -23,13 +28,12 @@ class BlockNode(ASTNode):
         return f"Block({self.statements})"
 
 class VariableDeclarationNode(ASTNode):
-    def __init__(self, var_type, name, init_value=None):
-        self.var_type = var_type
+    def __init__(self, name, init_value=None):
         self.name = name
         self.init_value = init_value
 
     def __repr__(self):
-        return f"VariableDeclaration(name={self.name}, type={self.init_value})"
+        return f"VariableDeclaration(name -> {self.name}, initializer -> {self.init_value})"
 
 class AssignmentNode(ASTNode):
     def __init__(self, name, value):
@@ -52,6 +56,15 @@ class NumberNode(ASTNode):
 
     def __repr__(self):
         return f"Number({self.value})"
+    
+class BinaryOperationNode(ASTNode):
+    def __init__(self, left, operator, right):
+        self.left = left
+        self.operator = operator
+        self.right = right
+
+    def __repr__(self):
+        return f"({self.left} {self.operator} {self.right})"
 
 class IdentifierNode(ASTNode):
     def __init__(self, name):

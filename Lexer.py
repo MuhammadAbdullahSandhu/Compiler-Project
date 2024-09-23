@@ -5,7 +5,7 @@ from errors import Errors
 # Define Grammar
 KEYWORDS = {"int", "float", "return", "if", "else", "for", "while", "do", "break",
              "continue", "void", "char", "double", "switch", "case", "default",
-             "struct", "typedef", "enum", "union", "const", "volatile","long"}
+             "struct", "typedef", "enum", "union", "const", "volatile","long","sum"}
 OPERATORS = {'+', '-', '*', '/', '=', '>', '<', '!', '%'}
 MULTI_CHAR_OPERATORS = {"==", "!=", "<=", ">=", "--", "++", "&&", "<<", ">>", "*=", "%=", "+=", "-=", "&="}
 PUNCTUATION = {'.', ',', ';', '(', ')', '{', '}','[',']',':'}

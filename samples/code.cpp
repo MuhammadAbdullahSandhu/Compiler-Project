@@ -1,10 +1,15 @@
-long mains()
+
+int i;
+int alpha = 3;
+int main()
     {
-    int a ;
-    int b = 5.0;
-    int c = 4;
-    return a;
+    i = 4;
+    int j;
+    i = j;
+    return i;
+
 }
+
 
 
  

@@ -18,3 +18,33 @@ return_statement    :- return expression ;
 assignment_statement :- identifier = expression ;
 expression    :- NUMBER | IDENTIFIER
 
+
+version 3:
+program              :- program_declaration* function*
+program_declaration  :- variable_declaration
+function             :- return_type function_name() { block }
+block                :- { statement* }
+statement            :- variable_declaration | return_statement | assignment_statement
+variable_declaration :- type identifier ; | type identifier = expression ;
+return_statement     :- return expression ;
+assignment_statement :- identifier = expression ;
+expression           :- NUMBER | IDENTIFIER
+
+
+version 4:
+program              :- (declaration | function)*
+declaration          :- variable_declaration
+function             :- return_type identifier "(" ")" "{" block "}"
+block                :- "{" (statement | variable_declaration)* "}"
+statement            :- return_statement | assignment_statement
+variable_declaration :- type identifier ";" | type identifier "=" expression ";"
+return_statement     :- "return" expression ";"
+assignment_statement :- identifier "=" expression ";"
+expression           :- NUMBER | IDENTIFIER
+return_type          :- "int" | "void" | "long"
+type                 :- "int" | "void" | "long"
+
+
+
+
+
