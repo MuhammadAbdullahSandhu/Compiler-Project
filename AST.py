@@ -33,7 +33,10 @@ class VariableDeclarationNode(ASTNode):
         self.init_value = init_value
 
     def __repr__(self):
-        return f"VariableDeclaration(name -> {self.name}, initializer -> {self.init_value})"
+        if self.init_value is not None:
+            return f"VariableDeclaration(name -> {self.name}, initializer -> {self.init_value})"
+        else:
+            return f"VariableDeclaration(name -> {self.name})"
 
 class AssignmentNode(ASTNode):
     def __init__(self, name, value):

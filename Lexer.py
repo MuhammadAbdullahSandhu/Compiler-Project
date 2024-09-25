@@ -1,14 +1,13 @@
 import Token
 from Token import TokenType
+from token_kind import keyword_kinds, symbol_kinds, punctuator_kinds
 from errors import Errors
 
 # Define Grammar
-KEYWORDS = {"int", "float", "return", "if", "else", "for", "while", "do", "break",
-             "continue", "void", "char", "double", "switch", "case", "default",
-             "struct", "typedef", "enum", "union", "const", "volatile","long","sum"}
-OPERATORS = {'+', '-', '*', '/', '=', '>', '<', '!', '%'}
-MULTI_CHAR_OPERATORS = {"==", "!=", "<=", ">=", "--", "++", "&&", "<<", ">>", "*=", "%=", "+=", "-=", "&="}
-PUNCTUATION = {'.', ',', ';', '(', ')', '{', '}','[',']',':'}
+KEYWORDS = {keyword.value for keyword in keyword_kinds}
+OPERATORS = {keyword.value for keyword in symbol_kinds}
+MULTI_CHAR_OPERATORS = {keyword.value for keyword in symbol_kinds}
+PUNCTUATION = {keyword.value for keyword in punctuator_kinds}
 
 # Check if a string is a keyword
 def is_Keyword(keyword):
@@ -50,7 +49,6 @@ def Lexer(input_string):
             start = i
             while i < length and input_string[i] != '\n':
                 i += 1
-            tokens.append(Token.Token(TokenType.COMMENT, input_string[start:i], line_number))
             continue
 
         # Handle multi-line comments
@@ -62,7 +60,6 @@ def Lexer(input_string):
                     line_number += 1
                 i += 1
             i += 2  # Skip closing */
-            tokens.append(Token.Token(TokenType.COMMENT, input_string[start:i], line_number))
             continue
 
         # Handle numbers

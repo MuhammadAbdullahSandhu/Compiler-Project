@@ -1,13 +1,11 @@
 
-int i;
-int alpha = 3;
-int main()
-    {
-    i = 4;
-    int j;
-    i = j;
-    return i;
-
+int d;    // Global variable
+int g;
+int main()    
+{  
+    int i;
+    i = 8;
+    return i;   // Return the value of 'i'
 }
 
 

@@ -15,6 +15,7 @@ class TokenType:
     short_kw = "short"
     int_kw = 'int'
     long_kw = "long"
+    float_kw = "float"
     signed_kw = "signed"
     unsigned_kw = "unsigned"
     void_kw = "void"
@@ -89,10 +90,11 @@ class Token:
 
 
 class TokenKind:
-    def __init__(self, name, category):
-        self.name = name
-        self.category = category
+    def __init__(self, value, kind_list=None):
+        self.value = value
+        if kind_list is not None:
+            kind_list.append(self) 
 
     def __repr__(self):
-        return f"TokenKind(name={self.name}, category={self.category})"
+        return f"TokenKind({self.value})"
     

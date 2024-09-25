@@ -52,14 +52,17 @@ class Lexer:
         
         # Track line numbers
         current_line = 1
-        line_start = 0  # Start position of the current line
+        line_start = 0
         
         for match in self.regex.finditer(regular_tokens):
             token_type = match.lastgroup
             token_value = match.group(token_type)
             token_start = match.start()
             
-            # Update line number if necessary
+            # Debugging output for tracking tokens
+            print(f"Matched token: Type={token_type}, Value={token_value}, Line={current_line}")
+            
+            # Update line number
             line_increment = regular_tokens.count('\n', line_start, token_start)
             current_line += line_increment
             
@@ -67,21 +70,19 @@ class Lexer:
             line_start = token_start
             
             if token_type in ignored_tokens:
-                # Handle newlines for multi-line comments
                 if token_type == 'COMMENT_MULTI':
                     current_line += token_value.count('\n')
                 continue
             
-            # Handle invalid tokens
             if token_type == 'INVALID_NUMBER':
                 Errors.invalid_token(token_value, current_line)
                 tokens.append(Token.Token('INVALID', token_value, current_line))
                 continue
             
-            # Create the token with line number
             tokens.append(Token.Token(token_type, token_value, current_line))
         
         return tokens
+
     
     # Tokenize preprocessors after normal code tokenization
     def tokenize_preprocessors(self):

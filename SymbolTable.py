@@ -1,13 +1,12 @@
 class SymbolTable:
-    def __init__(self, is_global=False):
-        self.symbols = {}
-        self.children = []
-        self.is_global = is_global
+    def __init__(self, is_global=False, parent=None):
+        self.symbols = {}  
+        self.children = []  
+        self.is_global = is_global  
+        self.parent = parent 
         
 
     def define(self, name, var_type):
-        print(f"Declared variable: {name} of type {var_type} in {'global' if self.is_global else 'local'} scope.")
-        print(f"Declared variable: {name} of type {var_type}")
         if name in self.symbols:
             raise Exception(f"Variable '{name}' is already defined in this scope.")
         self.symbols[name] = var_type
@@ -31,7 +30,7 @@ class SymbolTable:
 
 
     def push_scope(self):
-        new_scope = SymbolTable()
+        new_scope = SymbolTable(parent=self)  # Pass the current scope as parent
         self.children.append(new_scope)
         return new_scope
 

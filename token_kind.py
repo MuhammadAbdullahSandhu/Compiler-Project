@@ -1,15 +1,15 @@
 from Token import TokenKind
 
+
+
 keyword_kinds = []
 symbol_kinds = []
+punctuator_kinds =[]
 
 bool_kw = TokenKind("_Bool", keyword_kinds)
 char_kw = TokenKind("char", keyword_kinds)
-short_kw = TokenKind("short", keyword_kinds)
 int_kw = TokenKind("int", keyword_kinds)
 long_kw = TokenKind("long", keyword_kinds)
-signed_kw = TokenKind("signed", keyword_kinds)
-unsigned_kw = TokenKind("unsigned", keyword_kinds)
 void_kw = TokenKind("void", keyword_kinds)
 
 return_kw = TokenKind("return", keyword_kinds)
@@ -34,9 +34,9 @@ minus = TokenKind("-", symbol_kinds)
 star = TokenKind("*", symbol_kinds)
 slash = TokenKind("/", symbol_kinds)
 mod = TokenKind("%", symbol_kinds)
+equals = TokenKind("=", symbol_kinds)
 incr = TokenKind("++", symbol_kinds)
 decr = TokenKind("--", symbol_kinds)
-equals = TokenKind("=", symbol_kinds)
 plusequals = TokenKind("+=", symbol_kinds)
 minusequals = TokenKind("-=", symbol_kinds)
 starequals = TokenKind("*=", symbol_kinds)
@@ -57,18 +57,18 @@ lbitshift = TokenKind("<<", symbol_kinds)
 rbitshift = TokenKind(">>", symbol_kinds)
 compl = TokenKind("~", symbol_kinds)
 
-dquote = TokenKind('"', symbol_kinds)
-squote = TokenKind("'", symbol_kinds)
+dquote = TokenKind('"', punctuator_kinds)
+squote = TokenKind("'", punctuator_kinds)
 
-open_paren = TokenKind("(", symbol_kinds)
-close_paren = TokenKind(")", symbol_kinds)
-open_brack = TokenKind("{", symbol_kinds)
-close_brack = TokenKind("}", symbol_kinds)
-open_sq_brack = TokenKind("[", symbol_kinds)
-close_sq_brack = TokenKind("]", symbol_kinds)
+open_paren = TokenKind("(", punctuator_kinds)
+close_paren = TokenKind(")", punctuator_kinds)
+open_brack = TokenKind("{", punctuator_kinds)
+close_brack = TokenKind("}", punctuator_kinds)
+open_sq_brack = TokenKind("[", punctuator_kinds)
+close_sq_brack = TokenKind("]", punctuator_kinds)
 
-comma = TokenKind(",", symbol_kinds)
-semicolon = TokenKind(";", symbol_kinds)
-dot = TokenKind(".", symbol_kinds)
-arrow = TokenKind("->", symbol_kinds)
+comma = TokenKind(",", punctuator_kinds)
+semicolon = TokenKind(";", punctuator_kinds)
+dot = TokenKind(".", punctuator_kinds)
+arrow = TokenKind("->", punctuator_kinds)
 
