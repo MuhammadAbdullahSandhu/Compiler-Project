@@ -1,3 +1,5 @@
+from AST import NumberNode,IdentifierNode,BinaryOperationNode
+
 class SymbolTable:
     def __init__(self, is_global=False, parent=None):
         self.symbols = {}  
@@ -10,15 +12,14 @@ class SymbolTable:
         if name in self.symbols:
             raise Exception(f"Variable '{name}' is already defined in this scope.")
         self.symbols[name] = var_type
-
+        
     def lookup(self, name):
         if name in self.symbols:
             return self.symbols[name]
-        for child in reversed(self.children):
-            result = child.lookup(name)
-            if result:
-                return result
-        return None
+        if self.parent is not None:
+            return self.parent.lookup(name)
+        
+        raise NameError(f"Variable '{name}' is not declared.")
 
     def check_type(self, name, expected_type):
         # Look up the type of the symbol (variable or function) in the symbol table
@@ -30,7 +31,7 @@ class SymbolTable:
 
 
     def push_scope(self):
-        new_scope = SymbolTable(parent=self)  # Pass the current scope as parent
+        new_scope = SymbolTable(parent=self)  
         self.children.append(new_scope)
         return new_scope
 
@@ -38,17 +39,14 @@ class SymbolTable:
         if self.children:
             self.children.pop()
 
-    def __repr__(self):
-        return f"SymbolTable({self.symbols}, is_global={self.is_global})"
-
     def __repr__(self, level=0):
         indent = "  " * level
-        result = f"{indent}SymbolTable(\n"
+        scope_type = "Global" if self.is_global else "Local"
+        result = f"{indent}{scope_type} Scope:\n"
         for name, var_type in self.symbols.items():
             result += f"{indent}  {name}: {var_type}\n"
         for child in self.children:
-            result += child.__repr__(level + 1)
-        result += f"{indent})"
+            result += child.__repr__(level + 1)  
         return result
     
 

@@ -41,10 +41,75 @@ variable_declaration :- type identifier ";" | type identifier "=" expression ";"
 return_statement     :- "return" expression ";"
 assignment_statement :- identifier "=" expression ";"
 expression           :- NUMBER | IDENTIFIER
-return_type          :- "int" | "void" | "long"
-type                 :- "int" | "void" | "long"
+return_type          :- "int" | "void" 
+type                 :- "int" 
 
 
 
+program              :- (function | declaration)*
+function             :- return_type identifier "(" ")" block
+declaration          :- variable_declaration
+block                :- "{" (statement | variable_declaration)* "}"
+statement            :- return_statement 
+                     | assignment_statement 
+                     | expression ";"
+variable_declaration :- type identifier ";"
+                     | type identifier "=" expression ";"
+return_statement     :- "return" expression ";"
+assignment_statement :- identifier "=" expression ";"
+expression           :- expression ( "+" | "-" | "*" | "/" ) expression
+                     | "(" expression ")"
+                     | NUMBER
+                     | IDENTIFIER
+return_type          :- "int" | "void"
+type                 :- "int" 
+
+
+program              :- (function | declaration)*
+function             :- return_type identifier "(" ")" block
+declaration          :- variable_declaration
+block                :- "{" (statement | variable_declaration)* "}"
+statement            :- return_statement 
+                     | assignment_statement 
+                     | if_statement
+                     | expression ";"
+variable_declaration :- type identifier ";"
+                     | type identifier "=" expression ";"
+return_statement     :- "return" expression ";"
+assignment_statement :- identifier "=" expression ";"
+if_statement         :- "if" "(" expression ")" block ( "else" block )?
+expression           :- expression ( "+" | "-" | "*" | "/" ) expression
+                     | "(" expression ")"
+                     | NUMBER
+                     | IDENTIFIER
+return_type          :- "int" | "void"
+
+type                 :- "int"
+
+
+
+
+
+program              :- (function | declaration)*
+function             :- return_type identifier "(" ")" block
+declaration          :- variable_declaration
+block                :- "{" (statement | variable_declaration)* "}"
+statement            :- return_statement 
+                     | assignment_statement 
+                     | if_statement
+                     | for_statement
+                     | expression ";"
+variable_declaration :- type identifier ";"
+                     | type identifier "=" expression ";"
+return_statement     :- "return" expression ";"
+assignment_statement :- identifier "=" expression ";"
+if_statement         :- "if" "(" expression ")" block ( "else" block )?
+for_statement        :- "for" "(" (variable_declaration | assignment_statement)? ";" expression? ";" expression? ")" block
+expression           :- expression ( "+" | "-" | "*" | "/" ) expression
+                     | "(" expression ")"
+                     | NUMBER
+                     | IDENTIFIER
+return_type          :- "int" | "void"
+type                 :- "int"
 
 

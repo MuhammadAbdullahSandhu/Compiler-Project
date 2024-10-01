@@ -140,7 +140,7 @@ def Lexer(input_string):
             i += 1  # Skip the closing quote
             tokens.append(Token.Token(TokenType.STRING_LITERAL, input_string[start:i], line_number))
             continue
-
+        
         # Handle unknown characters (Invalid token)
         Errors.invalid_token(current_char,line_number)
         tokens.append(Token.Token(TokenType.UNKNOWN, current_char, line_number))

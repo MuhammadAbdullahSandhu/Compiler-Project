@@ -3,6 +3,7 @@ import argparse
 import MyParser 
 from errors import Errors
 
+
 ## Build a Lexer from start https://www.youtube.com/watch?v=nexKgX2d7wU
 ## https://medium.com/@enzojade62/step-by-step-building-a-lexer-in-java-for-tokenizing-source-code-ac4f1d91326f
 ## https://github.com/FelipeTomazEC/Lexical-Analyzer

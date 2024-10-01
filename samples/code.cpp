@@ -1,11 +1,14 @@
+int d;
 
-int d;    // Global variable
-int g;
 int main()    
 {  
-    int i;
-    i = 8;
-    return i;   // Return the value of 'i'
+    int s, i;
+    s = 5;
+    i = 4; //int a
+    if(d == 6){
+        return i;
+    }
+     return s; 
 }
 
 
