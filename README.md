@@ -37,4 +37,4 @@ variable declarations, statements, and expressions. The parser processes the pro
 associated with a corresponding node type in the AST.
 
 ## Overview of the Parsing Process
-The entry point of the parsing process is the `parse()` method, which loops through the tokens in the source code and distinguishes between function declarations and variable declarations. \Functions and declarations are parsed separately, and each creates an appropriate node in the AST. A function is identified by its return type and name, followed by parentheses and a block of code. Variable declarations can either be standalone or part of a function.
+The entry point of the parsing process is the `parse()` method, which loops through the tokens in the source code and distinguishes between function declarations and variable declarations. Functions and declarations are parsed separately, and each creates an appropriate node in the AST. A function is identified by its return type and name, followed by parentheses and a block of code. Variable declarations can either be standalone or part of a function.
