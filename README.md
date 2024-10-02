@@ -30,3 +30,6 @@
 ### Error Handling
 The lexer will print an error message whenever it encounters an invalid token. For example, if you have the invalid token in the code, the lexer will output:
 Error: Invalid token 'token' at line 'line No.'
+
+#Parser
+This parser is designed to analyze and construct the Abstract Syntax Tree (AST) for a simple programming language that includes features such as function definitions, variable declarations, statements, and expressions. The parser processes the program in a hierarchical manner, breaking it down into manageable components, each of which is associated with a corresponding node type in the AST.
