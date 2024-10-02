@@ -50,7 +50,7 @@ class Parser:
 
                 if next_token.t_type == TokenType.IDENTIFIER:
                     if self.tokens[self.current_token_pos + 2].t_type != TokenType.PUNCTUATION or self.tokens[self.current_token_pos + 2].t_vale != token_kind.open_paren.value:
-                        global_declarations.append(self.parse_declaration())
+                        global_declarations.append(self.parse_variable_declaration())
                     else:
                         self.local_symbol_table = self.local_symbol_table.push_scope()
                         functions.append(self.parse_function())
@@ -68,7 +68,7 @@ class Parser:
         print("Generated Three Address Code (TAC):")
         return global_declarations, functions ,program, symbol_table, tac_code
     
-    def parse_declaration(self):
+    def parse_variable_declaration(self):
         print("Parsing variable declaration")
         token = self.current_token()
         
@@ -92,11 +92,11 @@ class Parser:
                     var_names.append(vari_name.t_vale)
                 else:
                     break
-            
+
             # Define all variables in the symbol table
             for var_name in var_names:
                 self.local_symbol_table.define(var_name, var_type.t_vale)
-            
+
             # Check for initialization
             token = self.current_token()
             if token and token.t_type == TokenType.OPERATOR and token.t_vale == token_kind.equals.value:
@@ -164,7 +164,9 @@ class Parser:
                 raise SyntaxError(f"Function '{func_name.t_vale}' of type '{fun_type.t_vale}' doesn't return a value.")
     
         return FunctionNode(func_name.t_vale, parameters, body)   
-        
+
+
+    #Parse Block    
     def parse_block(self):
         statements = []
         print("Parsing block: statements")
@@ -173,7 +175,7 @@ class Parser:
             token = self.current_token()
             if token.t_type == TokenType.KEYWORD and token.t_vale == token_kind.int_kw.value:
                 # Parsing variable declaration
-                statements.append(self.parse_declaration())
+                statements.append(self.parse_variable_declaration())
             else:
                 # Parsing statement
                 statements.append(self.parse_statement())
@@ -182,7 +184,9 @@ class Parser:
         
         return BlockNode(statements)
 
-
+    
+    
+    # Parse Statement 
     def parse_statement(self):
         print("Parsing statement")
         token = self.current_token()
@@ -216,7 +220,7 @@ class Parser:
         else:
             raise SyntaxError(f"Unexpected Token, found {token}.")
 
-        
+    #Parse Return Statment    
     def parse_return_statement(self):
         print("Parsing return statement")
         self.consume_token(TokenType.KEYWORD, token_kind.return_kw.value) 
@@ -224,16 +228,23 @@ class Parser:
         self.consume_token(TokenType.PUNCTUATION, token_kind.semicolon.value)  
         return ReturnNode(value)
 
+
+    #Parse Assignment Statement
     def parse_assignment_statement(self):
         print("Parsing assignment statement")
         var_name = self.consume_token(TokenType.IDENTIFIER)  
         expected_type = self.local_symbol_table.lookup(var_name.t_vale)
+        print(f'expected type = {expected_type}')
         self.consume_token(TokenType.OPERATOR, token_kind.equals.value)  
-        value = self.parse_expression()
+        value_type = self.parse_expression()
+        print(f'value = {value_type}')
         self.local_symbol_table.check_type(var_name.t_vale, expected_type)
+        print(f'type {var_name.t_vale}')
         self.consume_token(TokenType.PUNCTUATION, token_kind.semicolon.value)  
-        return AssignmentNode(var_name.t_vale, value)
+        return AssignmentNode(var_name.t_vale, value_type)
     
+
+    # Parse If Statement (If else only)
     def parse_if_statement(self):
         print("Parsing if statement")
         self.consume_token(TokenType.KEYWORD, [token_kind.if_kw.value])
@@ -256,6 +267,7 @@ class Parser:
         return IfNode(condition, then_block, else_block)
 
     
+    # Parse For loop 
     def parse_for_statement(self):
         print("Parsing for loop")
         self.consume_token(TokenType.KEYWORD, token_kind.for_kw.value)
@@ -267,7 +279,7 @@ class Parser:
         # Get the current token
         token = self.current_token()  
         if token.t_type == TokenType.KEYWORD and token.t_vale == token_kind.int_kw.value:
-            init_stmt = self.parse_declaration()  
+            init_stmt = self.parse_variable_declaration()  
         elif token.t_type == TokenType.IDENTIFIER:
             init_stmt = self.parse_assignment_statement() 
         print(f'init_stmt{init_stmt}')
@@ -297,6 +309,9 @@ class Parser:
         print(f'loop_body{loop_body}')
         return ForStatementNode(init_stmt, condition_expr, increment_expr, loop_body)
 
+
+
+    #Parse Term setting up AST (left    operator     right)
     # LHS (Left-Hand Side): This is typically the first operand encountered.
     # Operator: This is the operator token that connects LHS and RHS.
     # RHS (Right-Hand Side): This is the operand that comes after the operator.
@@ -315,6 +330,8 @@ class Parser:
 
         return left
     
+
+    #Parse Expression
     def parse_expression(self):
          # Parse the left-hand side (a number or identifier)
         left = self.parse_term() 
@@ -332,14 +349,14 @@ class Parser:
             token = self.current_token()  # Get the next token to check if there are more operators
 
         return left 
-        
-        
+
+
+    #Parse Factor    
     def parse_factor(self):
         token = self.current_token()
-        
         if token.t_type == TokenType.NUMBER:
-            self.consume_token(TokenType.NUMBER) 
-            return NumberNode(token.t_vale) 
+            self.consume_token(TokenType.NUMBER)
+            return NumberNode(token.t_vale)
         
         elif token.t_type == TokenType.IDENTIFIER:
             var_name = self.consume_token(TokenType.IDENTIFIER)
@@ -350,9 +367,9 @@ class Parser:
             next_token = self.current_token()
             if next_token and next_token.t_type == TokenType.OPERATOR and next_token.t_vale in [token_kind.incr.value, token_kind.decr.value]:
                 operator = self.consume_token(TokenType.OPERATOR, [token_kind.incr.value, token_kind.decr.value])
-
+                
                 # Create a node for the increment or decrement operation
-                return AssignmentNode(var_name.t_vale, BinaryOperationNode(IdentifierNode(var_name.t_vale), operator.t_vale, NumberNode(None)))
+                return AssignmentNode(var_name.t_vale, BinaryOperationNode(IdentifierNode(var_name.t_vale), operator.t_vale, NumberNode(1)))
             return IdentifierNode(var_name.t_vale)  
 
         elif token.t_type == TokenType.PUNCTUATION and token.t_vale in token_kind.open_paren.value:

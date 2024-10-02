@@ -114,7 +114,7 @@ class BinaryOperationNode(ASTNode):
     def __repr__(self, level=0):
         indent = "  " * level
         return f"{indent}BinaryOperationNode(\n" + \
-               f"{indent}  operator='{self.operator}',\n" + \
+                f"{indent}  operator='{self.operator}',\n" + \
                f"{indent}  left={self.left.__repr__(level + 1)},\n" + \
                f"{indent}  right={self.right.__repr__(level + 1)}\n" + \
                f"{indent})"

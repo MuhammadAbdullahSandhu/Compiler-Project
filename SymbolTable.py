@@ -18,7 +18,6 @@ class SymbolTable:
             return self.symbols[name]
         if self.parent is not None:
             return self.parent.lookup(name)
-        
         raise NameError(f"Variable '{name}' is not declared.")
 
     def check_type(self, name, expected_type):
@@ -35,13 +34,14 @@ class SymbolTable:
         self.children.append(new_scope)
         return new_scope
 
+    #Not using pop for now 
     def pop_scope(self):
         if self.children:
             self.children.pop()
 
     def __repr__(self, level=0):
         indent = "  " * level
-        scope_type = "Global" if self.is_global else "Local"
+        scope_type = "\nGlobal" if self.is_global else "Local"
         result = f"{indent}{scope_type} Scope:\n"
         for name, var_type in self.symbols.items():
             result += f"{indent}  {name}: {var_type}\n"

@@ -1,15 +1,19 @@
-int d;
+int a;
 
-int main()    
+int main(int a)    
 {  
-    int s, i;
-    s = 5;
-    i = 4; //int a
-    if(d == 6){
-        return i;
-    }
-     return s; 
+    int g;
+    for(int b= 5;b<10; b++){
+        int c = 3;
+        for(int d= 5;d<10; d++){
+        int f = 3;
+        }
+    } 
+    return a;
 }
+
+
+
 
 
 
