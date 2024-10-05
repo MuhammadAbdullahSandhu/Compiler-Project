@@ -60,38 +60,38 @@ The parser utilizes a symbol table to manage variable declarations and scope han
 
 ### Abstract Syntax Tree (AST) Nodes
 The AST is made up of various node types that correspond to different parts of the language:
-#### ProgramNode**: Represents the entire program and holds all the functions.
-#### FunctionNode**: Represents a function, holding the name, parameters, and body.
-#### BlockNode**: Represents a block of statements (enclosed in curly braces '{}').
-#### VariableDeclarationNode**: Represents a variable declaration, with an optional initializer.
-#### AssignmentNode**: Represents an assignment of a value to a variable.
-#### ReturnNode**: Represents a return statement.
-#### IfNode** and **ForStatementNode**: Represent conditional and loop structures, respectively.
-#### NumberNode** and **IdentifierNode**: Represent literal numbers and variable identifiers.
-#### BinaryOperationNode**: Represents a binary operation such as 'a + b' or 'x * y'.
+     ProgramNode: Represents the entire program and holds all the functions.
+     FunctionNode: Represents a function, holding the name, parameters, and body.
+     BlockNode: Represents a block of statements (enclosed in curly braces '{}').
+     VariableDeclarationNode: Represents a variable declaration, with an optional initializer.
+     AssignmentNode: Represents an assignment of a value to a variable.
+     ReturnNode: Represents a return statement.
+     IfNode and ForStatementNode: Represent conditional and loop structures, respectively.
+     NumberNode and IdentifierNode: Represent literal numbers and variable identifiers.
+     BinaryOperationNode**: Represents a binary operation such as 'a + b' or 'x * y'.
 
 ### Language Grammar
-program              :- (function | declaration)*
-function             :- return_type identifier "(" ")" block
-declaration          :- variable_declaration
-block                :- "{" (statement | variable_declaration)* "}"
-statement            :- return_statement 
+    program              :- (function | declaration)*
+    function             :- return_type identifier "(" ")" block
+    declaration          :- variable_declaration
+    block                :- "{" (statement | variable_declaration)* "}"
+    statement            :- return_statement 
                      | assignment_statement 
                      | if_statement
                      | for_statement
                      | expression ";"
-variable_declaration :- type identifier ";"
+    variable_declaration :- type identifier ";"
                      | type identifier "=" expression ";"
-return_statement     :- "return" expression ";"
-assignment_statement :- identifier "=" expression ";"
-if_statement         :- "if" "(" expression ")" block ( "else" block )?
-for_statement        :- "for" "(" (variable_declaration | assignment_statement)? ";" expression? ";" expression? ")" block
-expression           :- expression ( "+" | "-" | "*" | "/" ) expression
+    return_statement     :- "return" expression ";"
+    assignment_statement :- identifier "=" expression ";"
+    if_statement         :- "if" "(" expression ")" block ( "else" block )?
+    for_statement        :- "for" "(" (variable_declaration | assignment_statement)? ";" expression? ";" expression? ")" block
+    expression           :- expression ( "+" | "-" | "*" | "/" ) expression
                      | "(" expression ")"
                      | NUMBER
                      | IDENTIFIER
-return_type          :- "int" | "void"
-type                 :- "int"
+    return_type          :- "int" | "void"
+    type                 :- "int"
 The language grammar defines the structure of the program. A program consists of multiple functions and declarations. Each function consists of a return type, an identifier (function name), and a block of statements. The block can contain various types of statements, such as return statements, assignment statements, and control flow structures like if statements and for loops. Expressions include basic arithmetic and can involve numbers, identifiers, or grouped expressions within parentheses.
 
 
