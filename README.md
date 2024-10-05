@@ -60,7 +60,7 @@ The parser utilizes a symbol table to manage variable declarations and scope han
 
 ### Abstract Syntax Tree (AST) Nodes
 The AST is made up of various node types that correspond to different parts of the language:
-     ProgramNode: Represents the entire program and holds all the functions.
+    :ProgramNode: Represents the entire program and holds all the functions.
      FunctionNode: Represents a function, holding the name, parameters, and body.
      BlockNode: Represents a block of statements (enclosed in curly braces '{}').
      VariableDeclarationNode: Represents a variable declaration, with an optional initializer.
