@@ -1,14 +1,16 @@
 # Compiler Construction Project
 #### Tokenize .C file 
-#### SUPPORTED TOKENS
-    NUMBER 
-    KEYWORD
-    IDENTIFIER 
-    OPERATOR 
-    PUNCTUATION 
-    PREPROCESSOR
-    UNKNOWN
-    COMMENT
+#### Lexical Analyzer
+#### Overview
+This project implements a Lexical Analyzer (Lexer) and a Parser for tokenizing and parsing source code. It is designed to process input code, break it down into tokens, and parse it according to a predefined grammar. Additionally, the lexer handles error detection for invalid tokens and tracks line numbers for each token.
+The key components of this project include:
+            
+        Lexer: Breaks down source code into tokens.
+        Token: Represents individual tokens with types and values.
+        TokenKind: Categorizes tokens as keywords, symbols, or punctuators.
+        Parser: Parses the tokens into meaningful syntax structures.
+        Main Program: Coordinates the lexer and parser and provides a command-line interface for users.
+        
 ### Lexer for Simple Programming Language (Lexer1)
 #### This repository contains a lexer for a simple programming language. The lexer processes an input string of code and breaks it into tokens such as keywords, operators, identifiers, and punctuation. It also includes error handling for invalid tokens and tracks line numbers (Lexer 1).
 # Lexer1:  
