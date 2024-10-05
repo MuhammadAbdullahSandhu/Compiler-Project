@@ -69,7 +69,7 @@ The AST is made up of various node types that correspond to different parts of t
      ReturnNode: Represents a return statement.
      IfNode and ForStatementNode: Represent conditional and loop structures, respectively.
      NumberNode and IdentifierNode: Represent literal numbers and variable identifiers.
-     BinaryOperationNode**: Represents a binary operation such as 'a + b' or 'x * y'.
+     BinaryOperationNode: Represents a binary operation such as 'a + b' or 'x * y'.
 
 ### Language Grammar
     program              :- (function | declaration)*
