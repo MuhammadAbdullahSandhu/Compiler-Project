@@ -47,10 +47,10 @@ Variable declarations are parsed using the 'parse_variable_declaration()' method
 
 ### Statement Parsing
 The parser can handle different types of statements: return statements, assignment statements, if statements, for loops, and generic expressions. Each statement type has its dedicated parsing method:
---> Return statements are parsed by 'parse_return_statement()', which ensures that an expression is returned by the function.
---> Assignment statements ('a = 5;') are parsed by 'parse_assignment_statement()', which checks the types of both the variable and the expression to ensure consistency.
---> If statements and for loops are parsed using their respective methods ('parse_if_statement()' and 'parse_for_statement()'), and they handle conditional and loop logic. The parser ensures that conditional expressions evaluate to valid types.
---> Expressions** are handled by 'parse_expression()', which can include arithmetic operations, identifiers, or numbers. Expressions are broken down into smaller parts like terms and factors, and are recursively parsed to construct a binary operation tree, if applicable.
+#### Return statements are parsed by 'parse_return_statement()', which ensures that an expression is returned by the function.
+#### Assignment statements ('a = 5;') are parsed by 'parse_assignment_statement()', which checks the types of both the variable and the expression to ensure consistency.
+#### If statements and for loops are parsed using their respective methods ('parse_if_statement()' and 'parse_for_statement()'), and they handle conditional and loop logic. The parser ensures that conditional expressions evaluate to valid types.
+#### Expressions are handled by 'parse_expression()', which can include arithmetic operations, identifiers, or numbers. Expressions are broken down into smaller parts like terms and factors, and are recursively parsed to construct a binary operation tree, if applicable.
 
 ### Expression Parsing
 Expressions can consist of numbers, identifiers, or more complex arithmetic operations. The parser constructs a hierarchy using the 'BinaryOperationNode' class to represent expressions with operators such as '+', '-', '*', and '/'. 'parse_expression()' breaks down complex expressions into simple terms and factors, which are then combined into binary operation nodes, ensuring correct precedence and associativity.
@@ -60,15 +60,15 @@ The parser utilizes a symbol table to manage variable declarations and scope han
 
 ### Abstract Syntax Tree (AST) Nodes
 The AST is made up of various node types that correspond to different parts of the language:
---> ProgramNode**: Represents the entire program and holds all the functions.
---> FunctionNode**: Represents a function, holding the name, parameters, and body.
---> BlockNode**: Represents a block of statements (enclosed in curly braces '{}').
---> VariableDeclarationNode**: Represents a variable declaration, with an optional initializer.
---> AssignmentNode**: Represents an assignment of a value to a variable.
---> ReturnNode**: Represents a return statement.
---> IfNode** and **ForStatementNode**: Represent conditional and loop structures, respectively.
---> NumberNode** and **IdentifierNode**: Represent literal numbers and variable identifiers.
---> BinaryOperationNode**: Represents a binary operation such as 'a + b' or 'x * y'.
+#### ProgramNode**: Represents the entire program and holds all the functions.
+#### FunctionNode**: Represents a function, holding the name, parameters, and body.
+#### BlockNode**: Represents a block of statements (enclosed in curly braces '{}').
+#### VariableDeclarationNode**: Represents a variable declaration, with an optional initializer.
+#### AssignmentNode**: Represents an assignment of a value to a variable.
+#### ReturnNode**: Represents a return statement.
+#### IfNode** and **ForStatementNode**: Represent conditional and loop structures, respectively.
+#### NumberNode** and **IdentifierNode**: Represent literal numbers and variable identifiers.
+#### BinaryOperationNode**: Represents a binary operation such as 'a + b' or 'x * y'.
 
 ### Language Grammar
 The language grammar defines the structure of the program. A program consists of multiple functions and declarations. Each function consists of a return type, an identifier (function name), and a block of statements. The block can contain various types of statements, such as return statements, assignment statements, and control flow structures like if statements and for loops. Expressions include basic arithmetic and can involve numbers, identifiers, or grouped expressions within parentheses.
