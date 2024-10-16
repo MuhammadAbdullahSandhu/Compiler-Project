@@ -3,6 +3,7 @@ from AST import ProgramNode, FunctionNode, BlockNode, VariableDeclarationNode, R
 from token_kind import symbol_kinds
 from SymbolTable import SymbolTable
 import token_kind
+import TAC
 
 # https://docs.python.org/3/library/ast.html
 # https://github.com/ShivamSarodia/ShivyC/tree/master/shivyc/parser
@@ -73,7 +74,7 @@ class Parser:
         token = self.current_token()
         
         # Check for the type keyword (like 'int')
-        if token.t_type == TokenType.KEYWORD and token.t_vale in [token_kind.int_kw.value]:
+        if token.t_type == TokenType.KEYWORD and token.t_vale in [token_kind.int_kw.value,token_kind.float_kw.value]:
             var_type = self.consume_token(TokenType.KEYWORD)
             
             init_value = None  
@@ -356,6 +357,10 @@ class Parser:
         token = self.current_token()
         if token.t_type == TokenType.NUMBER:
             self.consume_token(TokenType.NUMBER)
+            return NumberNode(token.t_vale)
+        
+        if token.t_type == TokenType.DECIMAL:
+            self.consume_token(TokenType.DECIMAL)
             return NumberNode(token.t_vale)
         
         elif token.t_type == TokenType.IDENTIFIER:

@@ -10,6 +10,7 @@ class TokenType:
     UNKNOWN = 'UNKNOWN'
     COMMENT ='COMMENT'
     STRING_LITERAL = 'STRING_LITERAL'
+    DECIMAL    = 'DECIMAL'
 
 class Token:
     def __init__(self, type: TokenType, value: str, line_no: int):

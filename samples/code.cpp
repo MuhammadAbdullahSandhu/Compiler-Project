@@ -1,15 +1,14 @@
-int a;
 
-int main(int a)    
+int main()    
 {  
-    int g;
-    for(int b= 5;b<10; b++){
-        int c = 3;
-        for(int d= 5;d<10; d++){
-        int f = 3;
-        }
-    } 
-    return a;
+    int i = 6;
+    int j = 4;
+    int sum = i+j;
+    for (i =2 ; i>4; i++)
+    {
+        sum = sum + 1;
+    }
+    return sum;
 }
 
 

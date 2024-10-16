@@ -61,22 +61,30 @@ def Lexer(input_string):
                 i += 1
             i += 2  # Skip closing */
             continue
-
-        # Handle numbers
+         
+            
         if current_char.isdigit():
             start = i
             is_decimal = False
+            # Scan for numbers and handle decimals separately
             while i < length and (input_string[i].isdigit() or (input_string[i] == '.' and not is_decimal)):
                 if input_string[i] == '.':
-                    is_decimal = True  
+                    is_decimal = True  # We have encountered a decimal point
                 i += 1
-            # Check if the number is followed by an invalid identifier start (like `4a`)
+
+            # Handle the invalid case like `4a`
             if i < length and input_string[i].isalpha():
                 print(f"Error: Invalid token '{input_string[start:i + 1]}' at line {line_number}")
                 tokens.append(Token.Token(TokenType.UNKNOWN, input_string[start:i + 1], line_number))
                 i += 1  # Skip the invalid character
             else:
-                tokens.append(Token.Token(TokenType.NUMBER, input_string[start:i], line_number))
+                # Separate handling for decimals and integers
+                if is_decimal:
+                    # Decimal number case
+                    tokens.append(Token.Token(TokenType.DECIMAL, input_string[start:i], line_number))
+                else:
+                    # Integer number case
+                    tokens.append(Token.Token(TokenType.NUMBER, input_string[start:i], line_number))
             continue
 
         # Handle identifiers and keywords

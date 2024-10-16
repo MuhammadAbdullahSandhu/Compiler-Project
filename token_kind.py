@@ -9,6 +9,7 @@ punctuator_kinds =[]
 bool_kw = TokenKind("_Bool", keyword_kinds)
 char_kw = TokenKind("char", keyword_kinds)
 int_kw = TokenKind("int", keyword_kinds)
+float_kw = TokenKind("float", keyword_kinds)
 long_kw = TokenKind("long", keyword_kinds)
 void_kw = TokenKind("void", keyword_kinds)
 
