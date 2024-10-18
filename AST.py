@@ -1,5 +1,5 @@
 class ASTNode:
-    def __repr__(self, level=0):
+    def __repr__(self):
         return self.__class__.__name__
 
 class ProgramNode(ASTNode):
@@ -39,7 +39,7 @@ class BlockNode(ASTNode):
                f"\n{indent})"
 
 class VariableDeclarationNode(ASTNode):
-    def __init__(self, name, init_value=None):
+    def __init__(self, name, init_value):
         self.name = name
         self.init_value = init_value
 
@@ -121,7 +121,10 @@ class BinaryOperationNode(ASTNode):
 
 class IdentifierNode(ASTNode):
     def __init__(self, name):
-        self.name = name
+        if isinstance(name, list):
+            self.name = name[0]
+        else:
+            self.name = name
 
     def __repr__(self, level=0):
         indent = "  " * level

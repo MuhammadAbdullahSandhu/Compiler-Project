@@ -14,6 +14,7 @@ class Parser:
         self.current_token_pos = 0
         self.global_symbol_table = SymbolTable(is_global=True)  
         self.local_symbol_table = self.global_symbol_table 
+        self.tac_code = TAC.Three_address_code()
         
 
     def current_token(self):
@@ -64,10 +65,13 @@ class Parser:
         program = ProgramNode(functions)
         symbol_table = self.local_symbol_table
         print(f"AST:  {program}")
-        print(f"Symbol Table{symbol_table}")
-        tac_code = ""
-        print("Generated Three Address Code (TAC):")
-        return global_declarations, functions ,program, symbol_table, tac_code
+        print(f"Symbol Table{symbol_table}") 
+        # 3 address code
+        tac_code= TAC.Three_address_code()
+        tac_code.generate(program)
+        tac = tac_code.print_code()
+        
+        return global_declarations, functions ,program, symbol_table, tac
     
     def parse_variable_declaration(self):
         print("Parsing variable declaration")

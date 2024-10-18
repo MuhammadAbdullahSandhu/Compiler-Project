@@ -1,14 +1,14 @@
 
-int main()    
+void main()    
 {  
-    int i = 6;
-    int j = 4;
-    int sum = i+j;
-    for (i =2 ; i>4; i++)
+    int a;
+    int b= 5;
+    int x;
+    for (a=0; a>=56; a++)
     {
-        sum = sum + 1;
+        x++;
     }
-    return sum;
+
 }
 
 
