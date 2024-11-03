@@ -74,27 +74,40 @@ The AST is made up of various node types that correspond to different parts of t
      BinaryOperationNode: Represents a binary operation such as 'a + b' or 'x * y'.
 
 ### Language Grammar
-    program              :- (function | declaration)*
-    function             :- return_type identifier "(" ")" block
-    declaration          :- variable_declaration
-    block                :- "{" (statement | variable_declaration)* "}"
-    statement            :- return_statement 
-                     | assignment_statement 
-                     | if_statement
-                     | for_statement
-                     | expression ";"
-    variable_declaration :- type identifier ";"
-                     | type identifier "=" expression ";"
-    return_statement     :- "return" expression ";"
-    assignment_statement :- identifier "=" expression ";"
-    if_statement         :- "if" "(" expression ")" block ( "else" block )?
-    for_statement        :- "for" "(" (variable_declaration | assignment_statement)? ";" expression? ";" expression? ")" block
-    expression           :- expression ( "+" | "-" | "*" | "/" ) expression
-                     | "(" expression ")"
-                     | NUMBER
-                     | IDENTIFIER
-    return_type          :- "int" | "void"
-    type                 :- "int"
+             program              :- (function | declaration)*
+
+            function             :- return_type identifier "(" ")" block
+            declaration          :- variable_declaration
+            block                :- "{" (statement | variable_declaration)* "}"
+            
+            statement            :- return_statement 
+                                 | assignment_statement 
+                                 | if_statement
+                                 | for_statement
+                                 | expression ";"
+            
+            variable_declaration :- type identifier ";"
+                                 | type identifier "=" expression ";"
+            
+            return_statement     :- "return" expression ";"
+            assignment_statement :- identifier "=" expression ";"
+            if_statement         :- "if" "(" expression ")" block ( "else" block )?
+            for_statement        :- "for" "(" (variable_declaration | assignment_statement)? ";" expression? ";" expression? ")" block
+            
+            # Expression Grammar with Precedence Levels
+            expression           :- additive_expression
+            
+            additive_expression  :- multiplicative_expression ( ("+" | "-") multiplicative_expression )*
+            
+            multiplicative_expression :- primary_expression ( ("*" | "/") primary_expression )*
+            
+            primary_expression   :- "(" expression ")" 
+                                 | NUMBER
+                                 | IDENTIFIER
+            
+            return_type          :- "int" | "void"
+            type                 :- "int"
+
 The language grammar defines the structure of the program. A program consists of multiple functions and declarations. Each function consists of a return type, an identifier (function name), and a block of statements. The block can contain various types of statements, such as return statements, assignment statements, and control flow structures like if statements and for loops. Expressions include basic arithmetic and can involve numbers, identifiers, or grouped expressions within parentheses.
 
 
