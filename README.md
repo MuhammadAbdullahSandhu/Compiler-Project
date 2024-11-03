@@ -34,12 +34,12 @@ The lexer will print an error message whenever it encounters an invalid token. F
 Error: Invalid token 'token' at line 'line No.'
 
 # Parser
-This parser is designed to analyze and construct the Abstract Syntax Tree (AST) for a simple programming language that includes features such as function definitions,
-variable declarations, statements, and expressions. The parser processes the program in a hierarchical manner, breaking it down into manageable components, each of which is
-associated with a corresponding node type in the AST.
+This parser is designed to analyze tokens from a simple programming language, validate their syntax, and construct an Abstract Syntax Tree (AST) for constructs like function definitions, 
+variable declarations, statements, expressions, and control flow. In addition to building the AST, the parser manages variable and function scopes using a symbol table, and generates 
+three-address code (TAC) for intermediate code representation, facilitating further optimization and code generation steps.
 
 ### Overview of the Parsing Process
-The entry point of the parsing process is the 'parse()' method, which loops through the tokens in the source code and distinguishes between function declarations and variable declarations. Functions and declarations are parsed separately, and each creates an appropriate node in the AST. A function is identified by its return type and name, followed by parentheses and a block of code. Variable declarations can either be standalone or part of a function.
+The primary entry point for parsing is the parse() method. It loops through the tokens of the source code and identifies the different constructs, distinguishing between global declarations (variables) and function definitions. Each recognized construct is represented by a specific node in the AST. Functions are identified by a return type (int or void), followed by an identifier, parameter list, and block of code. Variable declarations can occur globally or within functions, with optional initialization.
 
 ### Function Parsing
 Functions in the language consist of a return type ('int' or 'void'), an identifier (function name), a parameter list, and a block of statements. The parser defines each function in the global symbol table and sets up a new scope for the function body. The 'parse_function()' method creates a 'FunctionNode' to represent the function, which includes parameters and the body of the function (a block of statements). After parsing, the function is validated to ensure that if its return type is 'int', it contains a 'return' statement, and if its type is 'void', it doesn’t.
@@ -63,15 +63,17 @@ The parser utilizes a symbol table to manage variable declarations and scope han
 ### Abstract Syntax Tree (AST) Nodes
 The AST is made up of various node types that correspond to different parts of the language:
 
-     ProgramNode: Represents the entire program and holds all the functions.
-     FunctionNode: Represents a function, holding the name, parameters, and body.
-     BlockNode: Represents a block of statements (enclosed in curly braces '{}').
-     VariableDeclarationNode: Represents a variable declaration, with an optional initializer.
-     AssignmentNode: Represents an assignment of a value to a variable.
-     ReturnNode: Represents a return statement.
-     IfNode and ForStatementNode: Represent conditional and loop structures, respectively.
-     NumberNode and IdentifierNode: Represent literal numbers and variable identifiers.
-     BinaryOperationNode: Represents a binary operation such as 'a + b' or 'x * y'.
+     ProgramNode: Root node representing the entire program.
+     FunctionNode: Represents a function, with its name, parameters, and body.
+     BlockNode: Represents a block of statements, with each block introducing a new scope.
+     VariableDeclarationNode: Represents variable declarations, with optional initial values.
+     AssignmentNode: Represents variable assignments.
+     ReturnNode: Represents return statements within functions.
+     IfNode: Represents if statements, with optional else blocks.
+     ForStatementNode: Represents for loops, handling initialization, condition, and increment.
+     FunctionCallNode: Represents function calls within expressions or statements.
+     BinaryOperationNode: Represents binary operations, like addition or multiplication, ensuring operator precedence.
+     NumberNode and IdentifierNode: Represent literal numbers and variable identifiers in expressions.
 
 ### Language Grammar
              program              :- (function | declaration)*
