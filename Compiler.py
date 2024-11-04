@@ -20,6 +20,7 @@ def main():
 
     # Flag -A to parse the code using the parser
     parser.add_argument('-A', '--parsing', action='store_true', help='parse the code using the parser')
+    
 
     # Parse command-line arguments
     args = parser.parse_args()

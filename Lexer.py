@@ -72,7 +72,7 @@ def Lexer(input_string):
                     is_decimal = True  # We have encountered a decimal point
                 i += 1
 
-            # Handle the invalid case like `4a`
+            # Handle the invalid case 
             if i < length and input_string[i].isalpha():
                 print(f"Error: Invalid token '{input_string[start:i + 1]}' at line {line_number}")
                 tokens.append(Token.Token(TokenType.UNKNOWN, input_string[start:i + 1], line_number))

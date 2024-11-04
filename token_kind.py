@@ -1,7 +1,5 @@
 from Token import TokenKind
 
-
-
 keyword_kinds = []
 symbol_kinds = []
 punctuator_kinds =[]

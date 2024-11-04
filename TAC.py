@@ -1,3 +1,4 @@
+from tabulate import tabulate
 # ProgramNode
 # FunctionNode
 # BlockNode
@@ -10,15 +11,18 @@
 # IdentifierNode
 # NumberNode
 
-
+#Recursive AST Traversal
+#recursive traversal 
 
 # start from the nodes as in AST
 
 class Three_address_code:
+    
     def __init__(self):
         self.temp_counter = 0  
         self.label_counter = 0  
-        self.code = []  
+        self.code = []
+        
 
     def temp_variable(self):
         # temporary veriables
@@ -26,7 +30,7 @@ class Three_address_code:
         return f"t{self.temp_counter}"
 
     def create_lable(self):
-        #lables and counter will keep increasing
+        #lables and counter 
         self.label_counter += 1
         return f"L{self.label_counter}"
 
@@ -49,6 +53,8 @@ class Three_address_code:
     def FunctionNode(self, node):
         self.code.append(f"function {node.name}:")
         self.code.append("Start of function")
+        # if node.parameters is not None:
+        #     self.code.append(node.parameters)
         self.generate(node.body)
         self.code.append("End of function")
 
@@ -58,16 +64,9 @@ class Three_address_code:
 
     def VariableDeclarationNode(self, node):
         if node.init_value is not None:
-            temp_var = self.temp_variable() 
-            init_value = self.generate(node.init_value)  
-
-            # assign the temp variable to the actual variable
-            #self.code.append(f"{node.name} = {temp_var}")
-            # store the init_value in the temp variable
-            self.code.append(f"{temp_var} = {init_value}")
-
+            init_value = self.generate(node.init_value)
+            self.code.append(f"{node.name} = {init_value}")
         else:
-            # declare the variable
             self.code.append(f"variable {node.name}")
 
     def AssignmentNode(self, node):
@@ -113,29 +112,31 @@ class Three_address_code:
             self.code.append(f"{end_label}:")
 
     def ForStatementNode(self, node):
-        loop_start = self.create_lable()  
-        loop_end = self.create_lable()  
-        
+        loop_start = self.create_lable()  # Start of the loop
+        loop_end = self.create_lable()  # End of the loop
+
+        # Initialize the loop variable
         self.generate(node.init_stmt)
         
-        # Start of the loop (create lable)
+        # Start of the loop (label)
         self.code.append(f"{loop_start}:")
 
         # Condition check
         condition = self.generate(node.condition_expr)
-        self.code.append(f"if {condition} goto {loop_end}")
+        self.code.append(f"if not {condition} goto {loop_end}")
 
         # Loop body
         self.generate(node.loop_body)
 
-        # increment expression
+        # Increment expression
         self.generate(node.increment_expr)
 
-        # the start of the loop
+        # Jump back to the start of the loop
         self.code.append(f"goto {loop_start}")
 
         # End of the loop
         self.code.append(f"{loop_end}:")
+
 
     def BinaryOperationNode(self, node):
         left = self.generate(node.left)
@@ -150,14 +151,20 @@ class Three_address_code:
     def IdentifierNode(self, node):
         return node.name
 
+    def FunctionCallNode(self, node):
+        # Generate code for the function arguments
+        arguments = [self.generate(arg) for arg in node.arguments]
+
+        # Create a temporary variable to store the result
+        temp_var = self.temp_variable()
+
+        # Generate TAC for the function call
+        self.code.append(f"{temp_var} = call {node.func_name}({', '.join(arguments)})")
+
+        return temp_var
+    
     def print_code(self):
-        # print the 3 address code
         print("Generated Three Address Code (TAC):")
-        for tac in self.code:
-            print(tac)
+        tac_table = [[i + 1, line] for i, line in enumerate(self.code)]
+        print(tabulate(tac_table, headers=["Line", "Code"], tablefmt="fancy_grid"))
 
-
-
-
-# constant folding
-# dead code elimination
