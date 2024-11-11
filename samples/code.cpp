@@ -1,13 +1,12 @@
-int isPrime(int n) {
-    int a = 2;
-    if (n <= 1) {
-        return n;
-    }
-    for (int i = 2; i * i <= n; i++) {
-        if (n % i == 0){
+int add(int x, int y){
+    int result = x + y;
+    return result;
+}
 
-         return i;
-         }
-    }
-    return n;
+int main(){
+    int a = 10;
+    int b = 20;
+    int c = add(a, b);
+    return c;
+
 }

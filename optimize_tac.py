@@ -1,34 +1,57 @@
 from tabulate import tabulate
 from optimizer import optimizer_constant_folding
+from AST import BlockNode, AssignmentNode, IdentifierNode, ReturnNode, BinaryOperationNode
 
 class op_Three_address_code:
     
     def __init__(self):
         self.temp_counter = 0  
         self.label_counter = 0  
-        self.code = []
-        self.variables = {}  # Store variable values
-        self.temp_values = {}  # Store temporary variable values
+        self.code = [] 
+
+        # track variable values for constant propagation 
+        self.constants = {} 
+        
+        # track temporary variables 
+        self.temp_values = {} 
+        self.function_definitions = {} 
 
     def temp_variable(self):
         self.temp_counter += 1
-        return f"t{self.temp_counter}"
+        temp_var = f"t{self.temp_counter}"
+        self.temp_values[temp_var] = None  # Initialize with None
+        return temp_var
 
     def create_label(self):
         self.label_counter += 1
         return f"L{self.label_counter}"
 
     def generate(self, node):
-        class_name = f"{node.__class__.__name__}" 
-        class_attr = getattr(self, class_name, None)  
+        class_name = f"{node.__class__.__name__}"
+        class_attr = getattr(self, class_name)
         if class_attr:
             return class_attr(node)
         else:
-            raise Exception(f"Not found: {node.__class__.__name__}")
+            raise Exception(f"Node type {node.__class__.__name__} not found.")
+        
+    def resolve_value(self, operand):
+        if isinstance(operand, str) and operand in self.temp_values:
+            # Use stored value if available
+            return self.temp_values[operand]  
+        try:
+            # Try converting to a number
+            return float(operand)  
+        except ValueError:
+            return operand 
 
     def ProgramNode(self, node):
         for function in node.functions:
+            self.function_definitions[function.name] = function
+            #y = self.function_definitions[function.name] = function
+            #print(y)
+        for function in node.functions:
             self.generate(function)
+        
 
     def FunctionNode(self, node):
         self.code.append(f"function {node.name}:")
@@ -41,19 +64,17 @@ class op_Three_address_code:
             self.generate(statement)
 
     def VariableDeclarationNode(self, node):
-        init_value = self.generate(node.init_value) if node.init_value else None
-        # Store the variable and its value
-        self.variables[node.name] = init_value  
-        if init_value is not None:
+        if node.init_value is not None:
+            init_value = self.generate(node.init_value)
+            self.constants[node.name] = init_value  # Store constant value
             self.code.append(f"{node.name} = {init_value}")
         else:
+            self.constants[node.name] = None  # Initialize undefined
             self.code.append(f"variable {node.name}")
 
     def AssignmentNode(self, node):
         value = self.generate(node.value)
-
-        # Update the stored value
-        self.variables[node.name] = value 
+        self.constants[node.name] = value  # Update constant value
         self.code.append(f"{node.name} = {value}")
 
     def ReturnNode(self, node):
@@ -89,14 +110,12 @@ class op_Three_address_code:
             if end_label:
                 self.code.append(f"{end_label}:")
 
-
     def ForStatementNode(self, node):
         loop_start = self.create_label()
         loop_end = self.create_label()
 
         self.generate(node.init_stmt)
         self.code.append(f"{loop_start}:")
-
         condition = self.generate(node.condition_expr)
         self.code.append(f"if not {condition} goto {loop_end}")
 
@@ -110,15 +129,17 @@ class op_Three_address_code:
         right = self.generate(node.right)
 
         # Resolve temporary variables to their values if available
-        left_value = self.update_value(left)
-        right_value = self.update_value(right)
+        left_value = self.resolve_value(left)
+        right_value = self.resolve_value(right)
 
         # Perform constant folding if possible
         result = optimizer_constant_folding(left_value, node.operator, right_value)
         
         if result is not None:
             temp_var = self.temp_variable()
-            self.temp_values[temp_var] = result  # Store the result in temp_values
+
+            # Store the result in temp_values
+            self.temp_values[temp_var] = result  
             self.code.append(f"{temp_var} = {result}")
             return temp_var
         else:
@@ -130,35 +151,91 @@ class op_Three_address_code:
         return str(node.value)
 
     def IdentifierNode(self, node):
-        # Return the stored value of the identifier, if available
-        return self.variables.get(node.name, node.name)
-
-    def FunctionCallNode(self, node):
-        arguments = [self.generate(arg) for arg in node.arguments]
-        temp_var = self.temp_variable()
-        self.code.append(f"{temp_var} = call {node.func_name}({', '.join(arguments)})")
-        return temp_var
-
-    def update_value(self, operand):
+        # Use the constant value if available for propagation
+        if node.name in self.constants and self.constants[node.name] is not None:
+            return self.constants[node.name]
+        else:
+            return node.name
         
-        #Resolve the value of an operand
-        if isinstance(operand, str) and operand in self.temp_values:
-            # Use stored value if available
-            return self.temp_values[operand]  
-        try:
-            # Try converting to a number it will raise error if operand is not a number
-            return float(operand)  
-        except ValueError:
-            return operand 
+    
+    def FunctionCallNode(self, node):
+        function_def = self.function_definitions.get(node.func_name)
+        if not function_def:
+            raise Exception(f"Function '{node.func_name}' not defined.")
+
+        # Generate argument values
+        arg_values = [self.generate(arg) for arg in node.arguments]
+
+        # Create parameter-to-argument mapping
+        #zip pairs elements from the list of parameter names and the list of argument values together.
+        #dict converts the list of paired values into a dictionary.
+        param_mapping = dict(zip([param[1].t_vale for param in function_def.parameters], arg_values))
+        print (param_mapping)
+
+        # Generate the inlined function body with substituted parameters
+        #[(int, IdentifierNode("x")), (int, IdentifierNode("y"))]
+        return_value = self.inline_function_body(function_def.body, param_mapping)
+
+        print ( return_value)
+
+        return return_value
+    
+    def inline_function_body(self, body_node, param_mapping):
+        inlined_code = []
+
+        # create copy of code
+        original_code = self.code 
+        self.code = inlined_code 
+
+        # Generate the function body with parameter substitution
+        #traverses the function body and applies substitutions so that each parameter is replaced by its corresponding argument
+        self.generate_substituted_body(body_node, param_mapping)
+
+        # Restore original code buffer
+        inlined_code = self.code
+        self.code = original_code 
+
+        # Add the inlined code to the original code buffer
+        x = self.code.extend(inlined_code)
+        
+        # Return the last temporary variable as the function's result
+        #etrieves the last line of inlined code, which should contain the function’s return value.
+        
+        #results = inlined_code[-1].split(' = ')[0] 
+        #print(f'this is value = {results}')
+        return inlined_code[-1].split(' = ')[0] 
+
+    def generate_substituted_body(self, body_node, param_mapping):
+        if isinstance(body_node, BlockNode):
+            for statement in body_node.statements:
+                self.generate_substituted_body(statement, param_mapping)
+        elif isinstance(body_node, AssignmentNode):
+            value = self.replace_parameters(body_node.value, param_mapping)
+            self.code.append(f"{body_node.name} = {value}")
+        elif isinstance(body_node, ReturnNode):
+            value = self.replace_parameters(body_node.value, param_mapping)
+            self.code.append(f"{value}")
+
+    def replace_parameters(self, value_node, param_mapping):
+        if isinstance(value_node, IdentifierNode) and value_node.name in param_mapping:
+            return param_mapping[value_node.name]
+        elif isinstance(value_node, BinaryOperationNode):
+            left = self.replace_parameters(value_node.left, param_mapping)
+            right = self.replace_parameters(value_node.right, param_mapping)
+            result = optimizer_constant_folding(left, value_node.operator, right)
+            return f"{result}"
+        else:
+            return self.generate(value_node)
+
 
     def print_code(self):
         print("Generated Optimized Three Address Code (TAC):")
         tac_table = [[i + 1, line] for i, line in enumerate(self.code)]
         print(tabulate(tac_table, headers=["Line", "Code"], tablefmt="fancy_grid"))
-        print("\nVariables:")
-        var_table = [[name, value] for name, value in self.variables.items()]
-        print(tabulate(var_table, headers=["Variable", "Value"], tablefmt="fancy_grid"))
+        print(self.function_definitions)
+        print(self.temp_values)
+        print(self.constants)
 
-        print("\nTemporary Variables:")
-        temp_table = [[name, value] for name, value in self.temp_values.items()]
-        print(tabulate(temp_table, headers=["Temporary Variable", "Value"], tablefmt="fancy_grid"))
+        # print("\nTemporary Variables:")
+        # temp_table = [[name, value] for name, value in self.temp_values.items()]
+        # print(tabulate(temp_table, headers=["Temporary Variable", "Value"], tablefmt="fancy_grid"))
