@@ -34,12 +34,12 @@ The lexer will print an error message whenever it encounters an invalid token. F
 Error: Invalid token 'token' at line 'line No.'
 
 # Parser
-This parser is designed to analyze and construct the Abstract Syntax Tree (AST) for a simple programming language that includes features such as function definitions,
-variable declarations, statements, and expressions. The parser processes the program in a hierarchical manner, breaking it down into manageable components, each of which is
-associated with a corresponding node type in the AST.
+This parser is designed to analyze tokens from a simple programming language, validate their syntax, and construct an Abstract Syntax Tree (AST) for constructs like function definitions, 
+variable declarations, statements, expressions, and control flow. In addition to building the AST, the parser manages variable and function scopes using a symbol table, and generates 
+three-address code (TAC) for intermediate code representation, facilitating further optimization and code generation steps.
 
 ### Overview of the Parsing Process
-The entry point of the parsing process is the 'parse()' method, which loops through the tokens in the source code and distinguishes between function declarations and variable declarations. Functions and declarations are parsed separately, and each creates an appropriate node in the AST. A function is identified by its return type and name, followed by parentheses and a block of code. Variable declarations can either be standalone or part of a function.
+The primary entry point for parsing is the parse() method. It loops through the tokens of the source code and identifies the different constructs, distinguishing between global declarations (variables) and function definitions. Each recognized construct is represented by a specific node in the AST. Functions are identified by a return type (int or void), followed by an identifier, parameter list, and block of code. Variable declarations can occur globally or within functions, with optional initialization.
 
 ### Function Parsing
 Functions in the language consist of a return type ('int' or 'void'), an identifier (function name), a parameter list, and a block of statements. The parser defines each function in the global symbol table and sets up a new scope for the function body. The 'parse_function()' method creates a 'FunctionNode' to represent the function, which includes parameters and the body of the function (a block of statements). After parsing, the function is validated to ensure that if its return type is 'int', it contains a 'return' statement, and if its type is 'void', it doesn’t.
@@ -63,38 +63,62 @@ The parser utilizes a symbol table to manage variable declarations and scope han
 ### Abstract Syntax Tree (AST) Nodes
 The AST is made up of various node types that correspond to different parts of the language:
 
-     ProgramNode: Represents the entire program and holds all the functions.
-     FunctionNode: Represents a function, holding the name, parameters, and body.
-     BlockNode: Represents a block of statements (enclosed in curly braces '{}').
-     VariableDeclarationNode: Represents a variable declaration, with an optional initializer.
-     AssignmentNode: Represents an assignment of a value to a variable.
-     ReturnNode: Represents a return statement.
-     IfNode and ForStatementNode: Represent conditional and loop structures, respectively.
-     NumberNode and IdentifierNode: Represent literal numbers and variable identifiers.
-     BinaryOperationNode: Represents a binary operation such as 'a + b' or 'x * y'.
+     ProgramNode: Root node representing the entire program.
+     FunctionNode: Represents a function, with its name, parameters, and body.
+     BlockNode: Represents a block of statements, with each block introducing a new scope.
+     VariableDeclarationNode: Represents variable declarations, with optional initial values.
+     AssignmentNode: Represents variable assignments.
+     ReturnNode: Represents return statements within functions.
+     IfNode: Represents if statements, with optional else blocks.
+     ForStatementNode: Represents for loops, handling initialization, condition, and increment.
+     FunctionCallNode: Represents function calls within expressions or statements.
+     BinaryOperationNode: Represents binary operations, like addition or multiplication, ensuring operator precedence.
+     NumberNode and IdentifierNode: Represent literal numbers and variable identifiers in expressions.
 
 ### Language Grammar
-    program              :- (function | declaration)*
-    function             :- return_type identifier "(" ")" block
-    declaration          :- variable_declaration
-    block                :- "{" (statement | variable_declaration)* "}"
-    statement            :- return_statement 
-                     | assignment_statement 
-                     | if_statement
-                     | for_statement
-                     | expression ";"
-    variable_declaration :- type identifier ";"
-                     | type identifier "=" expression ";"
-    return_statement     :- "return" expression ";"
-    assignment_statement :- identifier "=" expression ";"
-    if_statement         :- "if" "(" expression ")" block ( "else" block )?
-    for_statement        :- "for" "(" (variable_declaration | assignment_statement)? ";" expression? ";" expression? ")" block
-    expression           :- expression ( "+" | "-" | "*" | "/" ) expression
-                     | "(" expression ")"
-                     | NUMBER
-                     | IDENTIFIER
-    return_type          :- "int" | "void"
-    type                 :- "int"
-The language grammar defines the structure of the program. A program consists of multiple functions and declarations. Each function consists of a return type, an identifier (function name), and a block of statements. The block can contain various types of statements, such as return statements, assignment statements, and control flow structures like if statements and for loops. Expressions include basic arithmetic and can involve numbers, identifiers, or grouped expressions within parentheses.
+             program              :- (function | declaration)*
+
+            function             :- return_type identifier "(" ")" block
+            declaration          :- variable_declaration
+            block                :- "{" (statement | variable_declaration)* "}"
+            
+            statement            :- return_statement 
+                                 | assignment_statement 
+                                 | if_statement
+                                 | for_statement
+                                 | expression ";"
+            
+            variable_declaration :- type identifier ";"
+                                 | type identifier "=" expression ";"
+            
+            return_statement     :- "return" expression ";"
+            assignment_statement :- identifier "=" expression ";"
+            if_statement         :- "if" "(" expression ")" block ( "else" block )?
+            for_statement        :- "for" "(" (variable_declaration | assignment_statement)? ";" expression? ";" expression? ")" block
+            
+            # Expression Grammar with Precedence Levels
+            expression           :- additive_expression
+            
+            additive_expression  :- multiplicative_expression ( ("+" | "-") multiplicative_expression )*
+            
+            multiplicative_expression :- primary_expression ( ("*" | "/") primary_expression )*
+            
+            primary_expression   :- "(" expression ")" 
+                                 | NUMBER
+                                 | IDENTIFIER
+            
+            return_type          :- "int" | "void"
+            type                 :- "int"
+
+The language grammar defines the structure of the program. A program consists of multiple functions and declarations. Each function consists of a return type, an identifier (function name), and a block of statements. The block can contain various types of statements, such as return statements, assignment statements, and control flow structures like if statements and for loops. Expressions include basic arithmetic and can involve numbers, identifiers, or grouped 
+expressions within parentheses. The  grammar supports basic programming constructs with specific types and a order of operation precedence. It allows for function declarations and variable declarations with types limited to integers 
+(int) and floating-point numbers (float). Functions can have a return type of either int or void, indicating whether or not they return a value. Within expressions, operations follow a strict precedence hierarchy: parentheses and 
+literals (NUMBER or IDENTIFIER) have the highest precedence, allowing specific sub-expressions to be evaluated first. Multiplicative operations (multiplication * and division /) follow, ensuring they are calculated before additive 
+operations. Finally, additive operations (addition + and subtraction -) have the lowest precedence. This precedence order is left-associative, meaning that expressions with operators of the same precedence level are evaluated from left 
+to right. This design allows the grammar to support complex expressions while ensuring consistent and predictable evaluation order, even in the presence of mixed operators.
+
+### Three Address Code Generation
+The Three_address_code class generates three-address code (TAC) from an Abstract Syntax Tree (AST), creating an intermediate representation for easier optimization and code generation. The class manages temporary variables (t1, t2, etc.) and labels (L1, L2, etc.) to represent intermediate values and control flow points. The main method, generate(node), dynamically dispatches to specific methods for each AST node type, such as ProgramNode for the program root, FunctionNode for functions, IfNode for conditionals, and ForStatementNode for loops. These methods append appropriate TAC instructions to self.code.
+Statements and expressions within functions are parsed by methods like BlockNode, VariableDeclarationNode, and AssignmentNode. Control flow constructs like IfNode and ForStatementNode generate conditional branches and looping constructs with labels, while BinaryOperationNode handles arithmetic by generating intermediate results. Leaf nodes, NumberNode and IdentifierNode, handle literals and identifiers, ensuring values are properly represented. The class also supports function calls via FunctionCallNode, assigning results to temporary variables. print_code() displays the TAC in a numbered, tabular format, aiding debugging and verification. Overall, Three_address_code converts AST structures into a structured TAC format, making it suitable for further optimization and code generation.
 
 
