@@ -34,9 +34,9 @@ The lexer will print an error message whenever it encounters an invalid token. F
 Error: Invalid token 'token' at line 'line No.'
 
 # Parser
-This parser is designed to analyze tokens from a simple programming language, validate their syntax, and construct an Abstract Syntax Tree (AST) for constructs like function definitions, 
-variable declarations, statements, expressions, and control flow. In addition to building the AST, the parser manages variable and function scopes using a symbol table, and generates 
-three-address code (TAC) for intermediate code representation, facilitating further optimization and code generation steps.
+This parser is designed to analyze tokens from a simple programming language, validate their syntax, and construct an Abstract Syntax Tree (AST) for constructs such as function definitions, variable declarations, statements, expressions, and control flow. Alongside building the AST, the parser manages variable and function scopes using a symbol table, ensuring consistent access to identifiers throughout the program. Additionally, the parser generates three-address code (TAC) for intermediate code representation, enabling subsequent optimization and code generation phases.
+
+A critical limitation of this parser is that it strictly supports integer data types. While it is designed to process and analyze floating-point numbers during parsing, these will later cause an error because the parser does not support floating-point operations or constructs. Any attempt to declare variables or perform operations with floating-point numbers will result in syntax or semantic validation errors, emphasizing the parser's restriction to integer-only data. This limitation ensures simplicity and targeted functionality, aligning with the intended scope of the language and optimization processes.
 
 ### Overview of the Parsing Process
 The primary entry point for parsing is the parse() method. It loops through the tokens of the source code and identifies the different constructs, distinguishing between global declarations (variables) and function definitions. Each recognized construct is represented by a specific node in the AST. Functions are identified by a return type (int or void), followed by an identifier, parameter list, and block of code. Variable declarations can occur globally or within functions, with optional initialization.
