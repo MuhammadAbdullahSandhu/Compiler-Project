@@ -1,12 +1,12 @@
-int add(int x, int y){
-    int result = x + y;
-    return result;
-}
+int main (){
 
-int main(){
-    int a = 10;
-    int b = 20;
-    int c = add(a, b);
-    return c;
-
+    int a = 6; 
+    int b = 7;
+    if ( a >= 8){
+        a ++;
+    }
+    else{
+        b --;
+    }
+    return b;
 }

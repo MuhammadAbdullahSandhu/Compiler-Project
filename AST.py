@@ -136,7 +136,22 @@ class BinaryOperationNode(ASTNode):
                f"{indent}  left={self.left.to_string(level + 1)},\n" + \
                f"{indent}  right={self.right.to_string(level + 1)}\n" + \
                f"{indent})"
+class PostIncrementNode(ASTNode):
+    def __init__(self, variable):
+        self.variable = variable
 
+    def to_string(self, level=0):
+        indent = "  " * level
+        return f"{indent}PostIncrementNode(variable='{self.variable}')"
+
+class PostDecrementNode(ASTNode):
+    def __init__(self, variable):
+        self.variable = variable
+
+    def to_string(self, level=0):
+        indent = "  " * level
+        return f"{indent}PostDecrementNode(variable='{self.variable}')"
+    
 class IdentifierNode(ASTNode):
     def __init__(self, name):
         if isinstance(name, list):

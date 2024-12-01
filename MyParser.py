@@ -2,13 +2,15 @@ from Token import TokenType
 from AST import (
     ProgramNode, FunctionNode, BlockNode, VariableDeclarationNode, 
     ReturnNode, AssignmentNode, NumberNode, IdentifierNode, 
-    BinaryOperationNode, IfNode, ForStatementNode, FunctionCallNode
+    BinaryOperationNode, IfNode, ForStatementNode, FunctionCallNode, PostDecrementNode, PostIncrementNode
 )
 from token_kind import symbol_kinds
 from SymbolTable import SymbolTable
 import token_kind
 import TAC
 from optimize_tac import op_Three_address_code
+from optimize_tac2 import Optimizer
+
 
 # https://docs.python.org/3/library/ast.html
 # https://github.com/ShivamSarodia/ShivyC/tree/master/shivyc/parser
@@ -69,19 +71,30 @@ class Parser:
         
         program = ProgramNode(functions)
         symbol_table = self.local_symbol_table
-        AST = program.to_string()
-        print(f"AST:  {AST}")
-        print(f"Symbol Table{symbol_table}") 
+        #AST = program.to_string()
+        #print(f"AST:  {AST}")
+        #print(f"Symbol Table{symbol_table}") 
         
         # 3 address code
         tac_code = TAC.Three_address_code()  # Pass symbol table
-        tac_code.generate(program)
-        tac_code.print_code()
+        #tac_code.generate(program)
+        #tac_code.print_code()
 
         #this code will show after optimization
-        tac_code = op_Three_address_code()  # Pass symbol table
-        tac_code.generate(program)
-        tac_code.print_code()
+        # tac_code = op_Three_address_code()  # Pass symbol table
+        # tac_code.generate(program)
+        # tac_code.print_code()
+        #optimizer = Optimizer(tac_code.code)
+        #optimizer.optimize()
+
+        # Print the optimized TAC
+        #optimizer.print_optimized_code()
+
+        #print (tac_code.code)
+        #gcc_asm = tac_to_gcc_asm(tac_code.code)
+        #for line in gcc_asm:
+        #    print(line)
+        
         
         return global_declarations, functions ,program, symbol_table, tac_code
 
@@ -276,6 +289,7 @@ class Parser:
         # print(f'expected type = {expected_type}')
         self.consume_token(TokenType.OPERATOR, token_kind.equals.value)  
         value_node = self.parse_expression()
+        
         self.local_symbol_table.set_value(var_name.t_vale, value_node)
         self.consume_token(TokenType.PUNCTUATION, token_kind.semicolon.value)  
         return AssignmentNode(var_name.t_vale, value_node)
@@ -342,7 +356,7 @@ class Parser:
             init_stmt = self.parse_variable_declaration()  
         elif token.t_type == TokenType.IDENTIFIER:
             init_stmt = self.parse_assignment_statement() 
-        print(f'init_stmt{init_stmt}')
+        #print(f'init_stmt{init_stmt}')
         # Update the token to parse the condition
         token = self.current_token()
         
@@ -350,7 +364,7 @@ class Parser:
         condition_expr = None
         if token.t_type != TokenType.PUNCTUATION or token.t_vale != token_kind.semicolon.value:
             condition_expr = self.parse_expression()  
-        print(f'condition_expr{condition_expr}')
+        #print(f'condition_expr{condition_expr}')
         self.consume_token(TokenType.PUNCTUATION, token_kind.semicolon.value)
         
         # Update the token to parse the increment expression
@@ -366,7 +380,7 @@ class Parser:
         # Parse the block of statements for loop body
         loop_body = self.parse_block()
         self.consume_token(TokenType.PUNCTUATION, token_kind.close_brack.value)
-        print(f'loop_body{loop_body}')
+        #print(f'loop_body{loop_body}')
         return ForStatementNode(init_stmt, condition_expr, increment_expr, loop_body)
 
 
@@ -415,41 +429,46 @@ class Parser:
     #Parse Factor    
     def parse_factor(self):
         token = self.current_token()
+
+        # Handle numbers
         if token.t_type == TokenType.NUMBER:
             self.consume_token(TokenType.NUMBER)
             return NumberNode(token.t_vale)
-        
+
         if token.t_type == TokenType.DECIMAL:
             self.consume_token(TokenType.DECIMAL)
             return NumberNode(token.t_vale)
-        
+
+        # Handle identifiers
         elif token.t_type == TokenType.IDENTIFIER:
             var_name = self.consume_token(TokenType.IDENTIFIER)
 
             # Check if this is a function call
             if self.current_token().t_type == TokenType.PUNCTUATION and self.current_token().t_vale == token_kind.open_paren.value:
                 self.consume_token(TokenType.PUNCTUATION, token_kind.open_paren.value)
-                # Parse function arguments
-                arguments = self.parse_arguments()  
+                arguments = self.parse_arguments()
                 self.consume_token(TokenType.PUNCTUATION, token_kind.close_paren.value)
                 return FunctionCallNode(var_name.t_vale, arguments)
 
-            # Check if the next token is ++ or --
+            # Handle ++ or -- operators
             next_token = self.current_token()
             if next_token and next_token.t_type == TokenType.OPERATOR and next_token.t_vale in [token_kind.incr.value, token_kind.decr.value]:
                 operator = self.consume_token(TokenType.OPERATOR, [token_kind.incr.value, token_kind.decr.value])
-                
-                # Create a node for the increment or decrement operation
-                return AssignmentNode(var_name.t_vale, BinaryOperationNode(IdentifierNode(var_name.t_vale), operator.t_vale, NumberNode(1)))
-            return IdentifierNode(var_name.t_vale)  
+                if operator.t_vale == token_kind.incr.value:
+                    return PostIncrementNode(var_name.t_vale)
+                elif operator.t_vale == token_kind.decr.value:
+                    return PostDecrementNode(var_name.t_vale)
 
-        #operation precedence
-        elif token.t_type == TokenType.PUNCTUATION and token.t_vale in token_kind.open_paren.value:
+            # Just an identifier
+            return IdentifierNode(var_name.t_vale)
+
+        # Handle parentheses
+        elif token.t_type == TokenType.PUNCTUATION and token.t_vale == token_kind.open_paren.value:
             self.consume_token(TokenType.PUNCTUATION, token_kind.open_paren.value)
-            expr = self.parse_expression() 
+            expr = self.parse_expression()
             self.consume_token(TokenType.PUNCTUATION, token_kind.close_paren.value)
             return expr
-        
+
+        # Unexpected token
         else:
-            raise SyntaxError(f"Unexpected token in factor: {token}")
-    
+            raise SyntaxError(f"Unexpected token in factor: {token.t_type} with value '{token.t_vale}'")

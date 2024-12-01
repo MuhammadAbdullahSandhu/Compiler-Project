@@ -19,7 +19,8 @@ class op_Three_address_code:
     def temp_variable(self):
         self.temp_counter += 1
         temp_var = f"t{self.temp_counter}"
-        self.temp_values[temp_var] = None  # Initialize with None
+        # Initialize with None
+        self.temp_values[temp_var] = None  
         return temp_var
 
     def create_label(self):
@@ -54,10 +55,10 @@ class op_Three_address_code:
         
 
     def FunctionNode(self, node):
-        self.code.append(f"function {node.name}:")
-        self.code.append("Start of function")
+        #self.code.append(f"function {node.name}:")
+        #self.code.append("Start of function")
         self.generate(node.body)
-        self.code.append("End of function")
+        #self.code.append("End of function")
 
     def BlockNode(self, node):
         for statement in node.statements:
@@ -66,15 +67,20 @@ class op_Three_address_code:
     def VariableDeclarationNode(self, node):
         if node.init_value is not None:
             init_value = self.generate(node.init_value)
-            self.constants[node.name] = init_value  # Store constant value
+
+            # Store constant value
+            self.constants[node.name] = init_value  
+            #print(f'constant{init_value}')
             self.code.append(f"{node.name} = {init_value}")
         else:
-            self.constants[node.name] = None  # Initialize undefined
+            self.constants[node.name] = None  
             self.code.append(f"variable {node.name}")
 
     def AssignmentNode(self, node):
         value = self.generate(node.value)
-        self.constants[node.name] = value  # Update constant value
+
+        # Update constant value
+        self.constants[node.name] = value  
         self.code.append(f"{node.name} = {value}")
 
     def ReturnNode(self, node):
@@ -83,32 +89,43 @@ class op_Three_address_code:
 
     def IfNode(self, node):
         condition = self.generate(node.condition)
+        
+        # Evaluate condition at compile time
         if isinstance(condition, bool):
+            # If the condition is a constant boolean, decide at compile time
             if condition:
+                # Only generate the "then" block if condition is True
                 self.generate(node.then_block)
             elif node.else_block:
+                # Only generate the "else" block if condition is False
                 self.generate(node.else_block)
         else:
+            # Proceed with normal if statement generation if condition cannot be folded
             then_label = self.create_label()
-            else_label = self.create_label() if node.else_block else None
-            end_label = self.create_label() if else_label else None
+            end_label = self.create_label()
+            else_label = self.create_label() if node.else_block else end_label
 
+            # Conditional jump to the then label if the condition is true
             self.code.append(f"if {condition} goto {then_label}")
-            if else_label:
+            
+            # If there's an else block, add a jump to it, otherwise jump to end
+            if node.else_block:
                 self.code.append(f"goto {else_label}")
-
+            
+            # Then block
             self.code.append(f"{then_label}:")
             self.generate(node.then_block)
-
-            if end_label:
-                self.code.append(f"goto {end_label}")
-
-            if else_label:
+            
+            # Unconditionally jump to the end label to avoid fall-through
+            self.code.append(f"goto {end_label}")
+            
+            # Else block, if it exists
+            if node.else_block:
                 self.code.append(f"{else_label}:")
                 self.generate(node.else_block)
-
-            if end_label:
-                self.code.append(f"{end_label}:")
+            
+            # End of if-else
+            self.code.append(f"{end_label}:")
 
     def ForStatementNode(self, node):
         loop_start = self.create_label()
@@ -131,7 +148,7 @@ class op_Three_address_code:
         # Resolve temporary variables to their values if available
         left_value = self.resolve_value(left)
         right_value = self.resolve_value(right)
-
+        
         # Perform constant folding if possible
         result = optimizer_constant_folding(left_value, node.operator, right_value)
         
@@ -141,6 +158,7 @@ class op_Three_address_code:
             # Store the result in temp_values
             self.temp_values[temp_var] = result  
             self.code.append(f"{temp_var} = {result}")
+            
             return temp_var
         else:
             temp_var = self.temp_variable()
@@ -165,6 +183,7 @@ class op_Three_address_code:
 
         # Generate argument values
         arg_values = [self.generate(arg) for arg in node.arguments]
+        print(f'argument values {arg_values}')
 
         # Create parameter-to-argument mapping
         #zip pairs elements from the list of parameter names and the list of argument values together.
@@ -175,8 +194,8 @@ class op_Three_address_code:
         # Generate the inlined function body with substituted parameters
         #[(int, IdentifierNode("x")), (int, IdentifierNode("y"))]
         return_value = self.inline_function_body(function_def.body, param_mapping)
-
-        print ( return_value)
+        
+        print (f'function call return values {return_value}')
 
         return return_value
     
@@ -186,29 +205,32 @@ class op_Three_address_code:
         # create copy of code
         original_code = self.code 
         self.code = inlined_code 
-
+        print(f'this is original code {original_code}')
         # Generate the function body with parameter substitution
         #traverses the function body and applies substitutions so that each parameter is replaced by its corresponding argument
-        self.generate_substituted_body(body_node, param_mapping)
+        self.substituted_body(body_node, param_mapping)
 
         # Restore original code buffer
         inlined_code = self.code
+        #print(f'this is inline code {inlined_code}')
         self.code = original_code 
 
         # Add the inlined code to the original code buffer
         x = self.code.extend(inlined_code)
+        #print(x)
         
         # Return the last temporary variable as the function's result
         #etrieves the last line of inlined code, which should contain the function’s return value.
         
-        #results = inlined_code[-1].split(' = ')[0] 
+        results = inlined_code[-1].split(' = ')[0] 
+        #temp = t1
         #print(f'this is value = {results}')
-        return inlined_code[-1].split(' = ')[0] 
+        return results
 
-    def generate_substituted_body(self, body_node, param_mapping):
+    def substituted_body(self, body_node, param_mapping):
         if isinstance(body_node, BlockNode):
             for statement in body_node.statements:
-                self.generate_substituted_body(statement, param_mapping)
+                self.substituted_body(statement, param_mapping)
         elif isinstance(body_node, AssignmentNode):
             value = self.replace_parameters(body_node.value, param_mapping)
             self.code.append(f"{body_node.name} = {value}")

@@ -25,7 +25,7 @@ class SymbolTable:
         raise NameError(f"Variable '{name}' is not declared.")
 
     def set_value(self, name, value):
-        print(f"Setting value of '{name}' to: {value}")
+        #print(f"Setting value of '{name}' to: {value}")
         if name in self.symbols:
             var_type, _ = self.symbols[name]
             self.symbols[name] = (var_type, value)
