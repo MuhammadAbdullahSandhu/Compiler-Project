@@ -63,17 +63,20 @@ The parser utilizes a symbol table to manage variable declarations and scope han
 ### Abstract Syntax Tree (AST) Nodes
 The AST is made up of various node types that correspond to different parts of the language:
 
-     ProgramNode: Root node representing the entire program.
-     FunctionNode: Represents a function, with its name, parameters, and body.
-     BlockNode: Represents a block of statements, with each block introducing a new scope.
-     VariableDeclarationNode: Represents variable declarations, with optional initial values.
-     AssignmentNode: Represents variable assignments.
-     ReturnNode: Represents return statements within functions.
-     IfNode: Represents if statements, with optional else blocks.
-     ForStatementNode: Represents for loops, handling initialization, condition, and increment.
-     FunctionCallNode: Represents function calls within expressions or statements.
-     BinaryOperationNode: Represents binary operations, like addition or multiplication, ensuring operator precedence.
-     NumberNode and IdentifierNode: Represent literal numbers and variable identifiers in expressions.
+            ProgramNode: The root node representing the entire program. It contains a list of functions.
+            FunctionNode: Represents a function, including its name, parameters, and body.
+            BlockNode: Represents a block of statements, where each block introduces a new scope.
+            VariableDeclarationNode: Represents variable declarations, with optional initial values.
+            AssignmentNode: Represents variable assignments.
+            ReturnNode: Represents return statements within functions.
+            IfNode: Represents if statements, with an optional else block.
+            ForStatementNode: Represents for loops, handling initialization, condition, and increment.
+            FunctionCallNode: Represents function calls within expressions or statements.
+            BinaryOperationNode: Represents binary operations, such as addition, subtraction, multiplication, or division, while ensuring operator precedence is maintained.
+            PostIncrementNode: Represents a post-increment operation. This node captures the variable being incremented after its current value is used in an expression.
+            PostDecrementNode: Represents a post-decrement operation. This node captures the variable being decremented after its current value is used in an expression.
+            NumberNode: Represents literal numeric values in expressions.
+            IdentifierNode: Represents variable identifiers or symbolic references used within expressions.
 
 ### Language Grammar
              program              :- (function | declaration)*
