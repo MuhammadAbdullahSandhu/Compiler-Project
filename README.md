@@ -142,7 +142,8 @@ This optimizer works particularly well with small test cases, especially those i
 The optimizer is designed to handle **integer data** types exclusively, ensuring that arithmetic and logical operations are optimized correctly. It tracks constant values throughout the code, updating assignments, conditions, and even return statements to reflect these constants. By combining these optimizations, the TAC optimizer not only improves runtime performance but also creates a cleaner, more maintainable intermediate representation, making it particularly useful for small-scale scenarios and educational purposes.
 
 ### Assembly 
-The Assembly Generator translates Three-Address Code (TAC) into low-level assembly instructions, supporting a comprehensive set of operations. These include function management (prologues and epilogues for stack setup and cleanup),                   
+  The Assembly Generator translates Three-Address Code (TAC) into low-level assembly instructions, supporting a comprehensive set of operations. These include function management like prologues and epilogues for stack setup and cleanup.  
+  
             arithmetic operations 
             + → add, - → sub, * → mul, / → div 
             comparison operations 
