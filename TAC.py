@@ -6,6 +6,7 @@ class Three_address_code:
         self.temp_counter = 0  
         self.label_counter = 0  
         self.code = []
+        self.globals = []
         
 
     def temp_variable(self):
@@ -31,16 +32,30 @@ class Three_address_code:
             raise Exception(f"not found {node.__class__.__name__}")
 
     def ProgramNode(self, node):
+        # Process global variables first
+        for global_var in node.global_variables:
+            self.generate(global_var) 
+            self.globals.append(f'{global_var}') 
+        
+        # Process functions
         for function in node.functions:
             self.generate(function)
 
     def FunctionNode(self, node):
-        #self.code.append(f"function {node.name}:")
-        #self.code.append("Start of function")
-        # if node.parameters is not None:
-        #     self.code.append(node.parameters)
+        self.code.append(f"function {node.name}:")
+        
+        # Process function parameters
+        if node.parameters is not None:
+            for param_type, param_name, default_value in node.parameters:
+                if default_value is not None:
+                    default_val_code = self.generate(default_value)
+                    self.code.append(f"{param_name.t_vale} = {default_val_code}")
+                else:
+                    self.code.append(f"param {param_name.t_vale}")
+        
+        # Generate code for the function body
         self.generate(node.body)
-        #self.code.append("End of function")
+        #self.code.append("end function")
 
     def BlockNode(self, node):
         for statement in node.statements:
@@ -107,30 +122,24 @@ class Three_address_code:
             self.code.append(f"{end_label}:")
 
     def ForStatementNode(self, node):
-        loop_start = self.create_label() 
-        loop_end = self.create_label()  
+        # Generate labels for the start and end of the loop
+        loop_start = self.create_label()
+        loop_end = self.create_label()
 
-        # Initialize the loop variable
+        # Generate initialization statement
         self.generate(node.init_stmt)
-        
-        # Start of the loop (label)
+
         self.code.append(f"{loop_start}:")
 
-        # Condition check
         condition = self.generate(node.condition_expr)
-        self.code.append(f"if {condition} goto {loop_start}")
-
-        # Loop body
+        self.code.append(f"if not {condition} goto {loop_end}")
         self.generate(node.loop_body)
 
-        # Increment expression
         self.generate(node.increment_expr)
-
-        # Jump back to the start of the loop
-        self.code.append(f"goto {loop_end}")
-
-        # End of the loop
+        self.code.append(f"goto {loop_start}")
         self.code.append(f"{loop_end}:")
+
+
 
 
     def BinaryOperationNode(self, node):
@@ -155,7 +164,7 @@ class Three_address_code:
         temp_var = self.temp_variable()
 
         # Generate TAC for the function call
-        self.code.append(f"{temp_var} = {node.func_name}({', '.join(arguments)})")
+        self.code.append(f"{temp_var} = call {node.func_name} {arguments}")
 
         return temp_var
     
@@ -163,4 +172,7 @@ class Three_address_code:
         print("Generated Three Address Code (TAC):")
         tac_table = [[i + 1, line] for i, line in enumerate(self.code)]
         print(tabulate(tac_table, headers=["Line", "Code"], tablefmt="fancy_grid"))
+
+    def print_tac_code(self):
+        print(self.code)
 

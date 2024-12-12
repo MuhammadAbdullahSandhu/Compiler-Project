@@ -3,15 +3,20 @@ class ASTNode:
         return f"{self.__class__.__name__}()"
 
 class ProgramNode(ASTNode):
-    def __init__(self, functions):
-        self.functions = functions
+    def __init__(self, global_variables, functions):
+        self.global_variables = global_variables  # Store global variable declarations
+        self.functions = functions  # Store function definitions
 
     def to_string(self, level=0):
         indent = "  " * level
-        return f"{indent}ProgramNode(\n" + \
-               f"{indent}  functions=[\n" + \
-               ",\n".join([func.to_string(level + 2) for func in self.functions]) + \
-               f"\n{indent}  ]\n{indent})"
+        globals_str = ",\n".join([var.to_string(level + 2) for var in self.global_variables])
+        functions_str = ",\n".join([func.to_string(level + 2) for func in self.functions])
+        return (
+            f"{indent}ProgramNode(\n"
+            f"{indent}  global_variables=[\n{globals_str}\n{indent}  ],\n"
+            f"{indent}  functions=[\n{functions_str}\n{indent}  ]\n"
+            f"{indent})"
+        )
 
 class FunctionNode(ASTNode):
     def __init__(self, name, parameters, body):

@@ -8,8 +8,8 @@ from token_kind import symbol_kinds
 from SymbolTable import SymbolTable
 import token_kind
 import TAC
-from optimize_tac import op_Three_address_code
 from optimize_tac2 import Optimizer
+import Assembly_g
 
 
 # https://docs.python.org/3/library/ast.html
@@ -49,6 +49,7 @@ class Parser:
     def parse(self):
         global_declarations = []
         functions = []
+
         print("Parsing program")
 
         while self.current_token() is not None:
@@ -58,18 +59,19 @@ class Parser:
                 next_token = self.tokens[self.current_token_pos + 1]
 
                 if next_token.t_type == TokenType.IDENTIFIER:
+                    # Check if it's a global variable declaration
                     if self.tokens[self.current_token_pos + 2].t_type != TokenType.PUNCTUATION or self.tokens[self.current_token_pos + 2].t_vale != token_kind.open_paren.value:
                         global_declarations.append(self.parse_variable_declaration())
                     else:
                         self.local_symbol_table = self.local_symbol_table.push_scope()
                         functions.append(self.parse_function())
-                        self.local_symbol_table = self.local_symbol_table.parent 
+                        self.local_symbol_table = self.local_symbol_table.parent
                 else:
                     raise SyntaxError(f"Expected identifier after keyword, found {next_token}.")
             else:
                 raise SyntaxError(f"Unexpected token {token} before function or declaration.")
         
-        program = ProgramNode(functions)
+        program = ProgramNode(global_declarations, functions)
         symbol_table = self.local_symbol_table
         #AST = program.to_string()
         #print(f"AST:  {AST}")
@@ -93,7 +95,9 @@ class Parser:
         #print (tac_code.code)
         #gcc_asm = tac_to_gcc_asm(tac_code.code)
         #for line in gcc_asm:
-        #    print(line)
+        #  print(line)
+        
+
         
         
         return global_declarations, functions ,program, symbol_table, tac_code
@@ -135,7 +139,11 @@ class Parser:
                 init_value = self.parse_expression()  
                 
                 # Check types for each variable
+                # Type checking
                 for var_name in var_names:
+                    if isinstance(init_value, NumberNode):
+                        if var_type.t_vale == "int" and "." in str(init_value.value):
+                            raise TypeError(f"Cannot assign a float value '{init_value.value}' to integer variable '{var_name}'.")
                     self.local_symbol_table.set_value(var_name, init_value)
 
             self.consume_token(TokenType.PUNCTUATION, token_kind.semicolon.value)  
@@ -198,15 +206,28 @@ class Parser:
         self.consume_token(TokenType.PUNCTUATION, token_kind.close_brack.value)
         if fun_type.t_vale != token_kind.void_kw.value:
 
-            if not any(isinstance(stmt, ReturnNode) for stmt in body.statements):
+            if not self.return_check(body):
                 raise SyntaxError(f"Function '{func_name.t_vale}' of type '{fun_type.t_vale}' must return a value.")
+
             
         elif fun_type.t_vale == token_kind.void_kw.value:
             if any(isinstance(stmt, ReturnNode) for stmt in body.statements):
                 raise SyntaxError(f"Function '{func_name.t_vale}' of type '{fun_type.t_vale}' doesn't return a value.")
     
         return FunctionNode(func_name.t_vale, parameters, body)   
-
+    
+    "check the branch of if statment for the return node"
+    def return_check(self, node):
+        if isinstance(node, ReturnNode):
+            return True
+        if isinstance(node, BlockNode):
+            return any(self.return_check(stmt) for stmt in node.statements)
+        if isinstance(node, IfNode):
+            then_has_return = self.return_check(node.then_block)
+            else_has_return = self.return_check(node.else_block) if node.else_block else False
+            return then_has_return and else_has_return
+        return False
+    
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------
     #Parse Block    
     def parse_block(self):
@@ -217,7 +238,7 @@ class Parser:
         token = self.current_token()
         while token is not None and token.t_vale != token_kind.close_brack.value:
             token = self.current_token()
-            if token.t_type == TokenType.KEYWORD and token.t_vale == token_kind.int_kw.value:
+            if token.t_type == TokenType.KEYWORD and token.t_vale in [token_kind.int_kw.value,token_kind.float_kw.value]:
                 statements.append(self.parse_variable_declaration())
             else:
                 statements.append(self.parse_statement())

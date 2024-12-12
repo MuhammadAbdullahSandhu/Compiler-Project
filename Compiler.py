@@ -3,6 +3,10 @@ import argparse
 import MyParser 
 from errors import Errors
 import optimize_tac2
+#from  assembly_gen import Assembly
+import optimize_tac
+import Assembly_g
+import assembly_gen
 
 
 ## Build a Lexer from start https://www.youtube.com/watch?v=nexKgX2d7wU
@@ -34,6 +38,9 @@ def main():
     # Flag -O to print optimize three address 
     parser.add_argument('-O', '--optac', action='store_true', help='print the optimized 3-address code (TAC)')
 
+    # Flag -asm to print assembly  
+    parser.add_argument('-ASM', '--asm', action='store_true', help='print the assembly')
+
     # Parse command-line arguments
     args = parser.parse_args()
 
@@ -45,11 +52,12 @@ def main():
               ast = args.ast,
               symboltable = args.st,
               tac = args.tac,
-              optac = args.optac
+              optac = args.optac,
+              asm = args.asm,
               )
 
 # Function to read .c file and show tokens along with code
-def code_file(file, token_list, parse_token, parsing, ast, symboltable, tac, optac):
+def code_file(file, token_list, parse_token, parsing, ast, symboltable, tac, optac, asm):
     # File opening
     try:
         with open(file, 'r') as text_file:
@@ -106,6 +114,27 @@ def code_file(file, token_list, parse_token, parsing, ast, symboltable, tac, opt
                     optimizer = optimize_tac2.Optimizer(tac_code.code)
                     optimizer.optimize()
                     optimizer.print_optimized_code()
+                except SyntaxError as e:
+                    print(f"Syntax error: {e}") 
+
+            elif asm:
+                try:
+                    #tac_code.generate(program)
+                    #optimizer = optimize_tac2.Optimizer(tac_code.code)
+                    #optimizer.optimize()
+                    #assembly_generator = Assembly()
+                    #optimized_tac = optimizer.code
+                    tac_code.generate(program)
+                    ASM = Assembly_g.AssemblyGenerator(tac_code.code)
+                    print("\nGenerated Assembly Code:")
+                    #print(ASM)
+                    ASM.parse()
+                    ASM.print_asm()
+                    #converter = assembly_gen.TACToAssemblyConverter()
+                    #converter.convert(tac_code.code)
+                    #print(tac_code.code)
+                    #converter.print_assembly()
+                    
                 except SyntaxError as e:
                     print(f"Syntax error: {e}") 
 
